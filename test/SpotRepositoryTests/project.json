@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable"
+  },
+  "dependencies": {
+    "BaseDomainObjects": "1.0.0-*",
+    "dotnet-test-xunit": "1.0.0-rc2-192208-24",
+    "InMemoryEventSourceSpotRepository": "1.0.0-*",
+    "SharedShippingDomainObjects": "1.0.0-*",
+    "SpotCharterDomain": "1.0.0-*",
+    "SpotCharterEventSourceRepository": "1.0.0-*",
+    "xunit": "2.1.0"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.1"
+        }
+      },
+      "imports": [
+        "dotnet5.4",
+        "portable-net451+win8"
+      ]
+    }
+  }
+}

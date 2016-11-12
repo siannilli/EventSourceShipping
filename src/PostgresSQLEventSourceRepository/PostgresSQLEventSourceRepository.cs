@@ -1,36 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 using BaseDomainObjects;
+using EventDispatcherBase;
 
 using Npgsql;
 using Newtonsoft.Json;
 
 namespace EventSourcePostgresRepository
 {
-    public abstract class PostgresSQLEventSourceRepository<T, TIdentity> : IEventSourceRepository<T, TIdentity> where T : IEventSourcedAggregate<TIdentity>
+    public abstract class PostgresSQLEventSourceRepository<TAggregate, TIdentity> : IEventDispatcherRepository, IEventSourceRepository<TAggregate, TIdentity> where TAggregate : IEventSourcedAggregate<TIdentity>
     {
 
         private readonly string connectionString;
         private readonly string tableName;
+        private readonly Process process = Process.GetCurrentProcess();       
 
         public PostgresSQLEventSourceRepository(            
             string database,
             string login, 
             string password,             
-            string tableName,
+            string tableName,            
             string applicationName = "cqrs+es client",
             string host = "localhost",
             int port = 5432)
         {
             this.connectionString = $"Host={host};Port={port};Username={login};Password={password};Application name={applicationName};Database={database}";
             this.tableName = tableName;
+
         }
 
-        public abstract T Get(TIdentity id); // { throw new NotImplementedException(); }
+        public abstract TAggregate Get(TIdentity id); // { throw new NotImplementedException(); }
 
-        void IEventSourceRepository<T, TIdentity>.Save(T instance)
+        void IEventSourceRepository<TAggregate, TIdentity>.Save(TAggregate instance)
         {
             var keyValues = this.parseKeyValueFields(instance.Id);
             var commandText = $@"
@@ -171,6 +176,53 @@ ORDER BY version, date_time
                 return returnList;
 
             }
+        }
+
+        public void CommitDispatchedEvent(Guid eventId)
+        {
+            using (var connection = new NpgsqlConnection(this.connectionString))
+            {
+                var commitEventCommand = connection.CreateCommand();
+                commitEventCommand.Connection = connection;
+                commitEventCommand.CommandText = "select public.\"CommitDispatchedEvent\"(@id)";
+                commitEventCommand.CommandType = System.Data.CommandType.Text;
+                
+                commitEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@id", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Uuid, Value = eventId });
+
+                connection.Open();                
+                commitEventCommand.ExecuteNonQuery();
+
+            }
+        }
+
+        public bool GetNextEventToDispatch(out Guid eventId, out string payload)
+        {
+            eventId = Guid.Empty;
+            payload = string.Empty;
+
+            using (var connection = new NpgsqlConnection(this.connectionString))
+            {
+                var getEventCommand = connection.CreateCommand();
+                getEventCommand.Connection = connection;
+                getEventCommand.CommandText = @"SELECT * FROM public.""GetEventToDispatch""(@host, @process);";
+                getEventCommand.CommandType = System.Data.CommandType.Text;                
+
+                getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@host", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.process.MachineName });
+                getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@process", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.process.ProcessName });
+                //getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@id", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Uuid, Direction = System.Data.ParameterDirection.InputOutput, Value = DBNull.Value });
+                //getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@payload", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Json, Direction = System.Data.ParameterDirection.InputOutput, Value = DBNull.Value });
+
+                connection.Open();
+                var reader = getEventCommand.ExecuteReader();
+
+                if (!reader.Read())
+                    return false;
+
+                eventId = reader.GetGuid(0); // (Guid)getEventCommand.Parameters["@id"].Value;
+                payload = reader.GetString(1); // (string)getEventCommand.Parameters["@payload"].Value;
+
+                return !eventId.Equals(Guid.Empty);
+            }            
         }
     }
 }

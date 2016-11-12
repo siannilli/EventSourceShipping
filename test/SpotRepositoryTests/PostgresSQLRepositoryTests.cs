@@ -4,12 +4,13 @@ using Xunit;
 using SpotCharterDomain;
 using SharedShippingDomainsObjects.ValueObjects;
 using Shipping.Repositories;
+using EventDispatcherBase;
 
 namespace SpotRepositoryTests
 {
     using TestMethodAttribute = FactAttribute;
 
-    public class PostgresSQLRepositoryTests
+    public class PostgresSQLRepositoryTests 
     {
 
         SpotCharterId spotId = new SpotCharterId(Guid.NewGuid());
@@ -85,5 +86,42 @@ namespace SpotRepositoryTests
             Assert.Equal(spotV2.VesselName, "Pinta");
         }
 
+        [TestMethod]
+        public void GetMessageToDispatch()
+        {
+            IEventDispatcherRepository repository = new SpotCharterEventSourceRepository
+                ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
+
+
+            Guid eventId = Guid.Empty;
+            string payload = string.Empty;
+
+            var result = repository.GetNextEventToDispatch(out eventId, out payload);
+
+            Assert.True(result);
+            Assert.NotSame(eventId, Guid.Empty);
+            Assert.NotSame(payload, string.Empty);
+
+        }
+
+
+        [TestMethod]
+        public void GetMessageAndCommitDispatch()
+        {
+
+            IEventDispatcherRepository repository = new SpotCharterEventSourceRepository
+                ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
+
+
+            Guid eventId = Guid.Empty;
+            string payload = string.Empty;
+
+            var result = repository.GetNextEventToDispatch(out eventId, out payload);
+            Assert.True(result);
+
+            repository.CommitDispatchedEvent(eventId);
+            Assert.True(true);
+
+        }
     }
 }

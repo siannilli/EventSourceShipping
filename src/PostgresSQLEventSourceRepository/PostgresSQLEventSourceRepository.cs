@@ -40,8 +40,8 @@ namespace EventSourcePostgresRepository
             var keyValues = this.parseKeyValueFields(instance.Id);
             var commandText = $@"
 INSERT INTO {this.tableName} 
-(id, aggregate_type, date_time, payload, payload_type, version, { string.Join(", ", keyValues.Keys) })
-VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, { string.Join(", ", keyValues.Keys.Select( k => $"@{k}")) })
+(id, aggregate_type, date_time, payload, payload_type, version, event_name, source, { string.Join(", ", keyValues.Keys) })
+VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, @event_name, @source, { string.Join(", ", keyValues.Keys.Select( k => $"@{k}")) })
 ";
 
             using (var connection = new NpgsqlConnection(this.connectionString))
@@ -99,6 +99,20 @@ VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, { s
                                 ParameterName = "@version",
                                 NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Integer,
                                 NpgsqlValue = @event.Version
+                            });
+
+                            cmd.Parameters.Add(new NpgsqlParameter()
+                            {
+                                ParameterName = "@event_name",
+                                NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar,
+                                NpgsqlValue = @event.EventName,
+                            });
+
+                            cmd.Parameters.Add(new NpgsqlParameter()
+                            {
+                                ParameterName = "@source",
+                                NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar,
+                                NpgsqlValue = (object)@event.Source ?? DBNull.Value,
                             });
 
                             foreach (var key in keyValues.Keys)
@@ -195,22 +209,20 @@ ORDER BY version, date_time
             }
         }
 
-        public bool GetNextEventToDispatch(out Guid eventId, out string payload)
+        public bool GetNextEventToDispatch(out Guid eventId, out DispatchEvent @event)
         {
             eventId = Guid.Empty;
-            payload = string.Empty;
+            @event = null;
 
             using (var connection = new NpgsqlConnection(this.connectionString))
             {
                 var getEventCommand = connection.CreateCommand();
                 getEventCommand.Connection = connection;
                 getEventCommand.CommandText = @"SELECT * FROM public.""GetEventToDispatch""(@host, @process);";
-                getEventCommand.CommandType = System.Data.CommandType.Text;                
+                getEventCommand.CommandType = System.Data.CommandType.Text;
 
                 getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@host", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.process.MachineName });
                 getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@process", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.process.ProcessName });
-                //getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@id", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Uuid, Direction = System.Data.ParameterDirection.InputOutput, Value = DBNull.Value });
-                //getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@payload", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Json, Direction = System.Data.ParameterDirection.InputOutput, Value = DBNull.Value });
 
                 connection.Open();
                 var reader = getEventCommand.ExecuteReader();
@@ -218,9 +230,16 @@ ORDER BY version, date_time
                 if (!reader.Read())
                     return false;
 
-                eventId = reader.GetGuid(0); // (Guid)getEventCommand.Parameters["@id"].Value;
-                payload = reader.GetString(1); // (string)getEventCommand.Parameters["@payload"].Value;
 
+                @event = new DispatchEvent()
+                {
+                    Id = eventId = reader.GetGuid(0),
+                    EventName = reader.GetString(reader.GetOrdinal("event_name")),
+                    Source = reader.IsDBNull(reader.GetOrdinal("source")) ? null : reader.GetString(reader.GetOrdinal("source")),
+                    Version = reader.GetInt32(reader.GetOrdinal("version")),
+                    Timestamp = reader.GetDateTime(reader.GetOrdinal("date_time")),
+                    Payload = JsonConvert.DeserializeObject(reader.GetString(reader.GetOrdinal("payload"))),// (string)getEventCommand.Parameters["@payload"].Value;
+            };
                 return !eventId.Equals(Guid.Empty);
             }            
         }

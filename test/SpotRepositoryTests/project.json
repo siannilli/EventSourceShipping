@@ -4,13 +4,14 @@
     "debugType": "portable"
   },
   "dependencies": {
-    "dotnet-test-xunit": "1.0.0-rc2-192208-24",
-    "EventDispatcherBase": "1.0.0-*",
-    "InMemoryEventSourceSpotRepository": "1.0.0-*",
-    "SharedShippingDomainObjects": "1.0.0-*",
-    "SpotCharterDomain": "1.0.0-*",
+    "xunit": "2.1.0",
     "SpotCharterEventSourceRepository": "1.0.0-*",
-    "xunit": "2.1.0"
+    "SpotCharterDomain": "1.0.0-*",
+    "SharedShippingDomainObjects": "1.0.0-*",
+    "InMemoryEventSourceSpotRepository": "1.0.0-*",
+    "EventDispatcherBase": "1.0.0-*",
+    "dotnet-test-xunit": "1.0.0-rc2-192208-24",
+    "BaseDomainObjects": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {

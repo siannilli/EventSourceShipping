@@ -2,6 +2,7 @@
 using Xunit;
 using SharedShippingDomainsObjects.ValueObjects;
 using SpotCharterDomain;
+using System.Linq;
 
 namespace Tests
 {
@@ -61,5 +62,17 @@ namespace Tests
 
         }
 
+
+        [TestMethodAttribute]
+        public void TestEventInterface()
+        {
+            var spot = GetSpotCharter();
+            BaseDomainObjects.IEventSourcedAggregate<SpotCharterId> agg = spot;
+
+            var evt = agg.Events.FirstOrDefault();
+
+            Assert.NotNull(evt.EventName);            
+            
+        }
     }
 }

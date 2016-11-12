@@ -94,13 +94,13 @@ namespace SpotRepositoryTests
 
 
             Guid eventId = Guid.Empty;
-            string payload = string.Empty;
+            DispatchEvent @event = null;
 
-            var result = repository.GetNextEventToDispatch(out eventId, out payload);
+            var result = repository.GetNextEventToDispatch(out eventId, out @event);
 
             Assert.True(result);
             Assert.NotSame(eventId, Guid.Empty);
-            Assert.NotSame(payload, string.Empty);
+            Assert.NotSame(@event, null);              
 
         }
 
@@ -114,7 +114,7 @@ namespace SpotRepositoryTests
 
 
             Guid eventId = Guid.Empty;
-            string payload = string.Empty;
+            DispatchEvent payload = null;
 
             var result = repository.GetNextEventToDispatch(out eventId, out payload);
             Assert.True(result);

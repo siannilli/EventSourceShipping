@@ -1,7 +1,8 @@
-﻿{
+{
   "version": "1.0.0-*",
 
   "dependencies": {
+    "BaseDomainObjects": "1.0.0-*",
     "NETStandard.Library": "1.6.0",
     "System.Diagnostics.Process": "4.1.0"
   },

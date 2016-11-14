@@ -12,11 +12,11 @@ using SpotCharterDomain;
 
 namespace SpotCharterInMemoryEventSourceRepository
 {
-    public class SpotCharterInMemoryEventSourceRepository: ISpotCharterRepository    
+    public class SpotCharterInMemoryEventSourceRepository: ISpotCharterCommandRepository    
     {
         public readonly IDictionary<SpotCharterId, IEnumerable<IEvent>> repository = new Dictionary<SpotCharterId, IEnumerable<IEvent>>();
 
-        SpotCharter IEventSourceRepository<SpotCharter, SpotCharterId>.Get(SpotCharterId id)
+        SpotCharter IEventSourceCommandRepository<SpotCharter, SpotCharterId>.Get(SpotCharterId id)
         {
             if (!this.repository.ContainsKey(id))
                 return null;
@@ -25,7 +25,7 @@ namespace SpotCharterInMemoryEventSourceRepository
             return new SpotCharter(eventStream.ToArray());
         }
 
-        void IEventSourceRepository<SpotCharter, SpotCharterId>.Save(SpotCharter instance)
+        void IEventSourceCommandRepository<SpotCharter, SpotCharterId>.Save(SpotCharter instance)
         {
             SpotCharterId id = instance.Id;
             IList<IEvent> eventStream = this.repository.ContainsKey(id) ? this.repository[id].ToList() : new List<IEvent>();

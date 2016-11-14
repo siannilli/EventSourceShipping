@@ -43,7 +43,7 @@ namespace Tests
         public void TestInMemoryRepository()
         {
             var spot = GetSpotCharter();
-            ISpotCharterRepository repository = new SpotCharterInMemoryEventSourceRepository.SpotCharterInMemoryEventSourceRepository();
+            ISpotCharterCommandRepository repository = new SpotCharterInMemoryEventSourceRepository.SpotCharterInMemoryEventSourceRepository();
 
             repository.Save(spot);
 

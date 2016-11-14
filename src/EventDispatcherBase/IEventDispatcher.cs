@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace EventDispatcherBase
 {
-    public interface IEventBroadcaster
+    public interface IEventDispatcher: IDisposable
     {
-        void Publish(object payload);
+        void Publish(DispatchEvent @event);
     }
 }

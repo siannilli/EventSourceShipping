@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BaseDomainObjects
 {
-    public interface IEventSourceRepository<T, TIdentity> where T : IEventSourcedAggregate<TIdentity>
+    public interface IEventSourceCommandRepository<T, TIdentity> where T : IEventSourcedAggregate<TIdentity>
     {
         T Get(TIdentity id);
         void Save(T instance);

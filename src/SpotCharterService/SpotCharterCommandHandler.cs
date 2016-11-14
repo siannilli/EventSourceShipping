@@ -21,9 +21,9 @@ namespace SpotCharterServices
 
     {
 
-        private readonly ISpotCharterRepository  _repository;
+        private readonly ISpotCharterCommandRepository  _repository;
 
-        public SpotCharterCommandHandler(ISpotCharterRepository repository)
+        public SpotCharterCommandHandler(ISpotCharterCommandRepository repository)
         {
             this._repository = repository;
         }

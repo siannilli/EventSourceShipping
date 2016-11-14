@@ -13,7 +13,7 @@ namespace EventDispatcherBase
         public DateTime Timestamp { get; set; }
         public int Version { get; set; }
         public string Source { get; set; }
-        public object Payload { get; set; }
+        public string Payload { get; set; }
 
     }
 }

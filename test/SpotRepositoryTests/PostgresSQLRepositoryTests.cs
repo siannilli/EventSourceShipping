@@ -47,7 +47,7 @@ namespace SpotRepositoryTests
         public void CreateAndRetrieve()
         {
             var spot = GetSpotCharter();
-            ISpotCharterRepository repository = new SpotCharterEventSourceRepository
+            ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
                 ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
 
             repository.Save(spot);
@@ -71,7 +71,7 @@ namespace SpotRepositoryTests
         public void CreateAndUpdate()
         {
             var spot = GetSpotCharter();
-            ISpotCharterRepository repository = new SpotCharterEventSourceRepository
+            ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
                 ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
 
             repository.Save(spot);

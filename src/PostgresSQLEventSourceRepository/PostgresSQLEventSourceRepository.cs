@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace EventSourcePostgresRepository
 {
-    public abstract class PostgresSQLEventSourceRepository<TAggregate, TIdentity> : IEventDispatcherRepository, IEventSourceRepository<TAggregate, TIdentity> where TAggregate : IEventSourcedAggregate<TIdentity>
+    public abstract class PostgresSQLEventSourceRepository<TAggregate, TIdentity> : IEventDispatcherRepository, IEventSourceCommandRepository<TAggregate, TIdentity> where TAggregate : IEventSourcedAggregate<TIdentity>
     {
 
         private readonly string connectionString;
@@ -35,7 +35,7 @@ namespace EventSourcePostgresRepository
 
         public abstract TAggregate Get(TIdentity id); // { throw new NotImplementedException(); }
 
-        void IEventSourceRepository<TAggregate, TIdentity>.Save(TAggregate instance)
+        void IEventSourceCommandRepository<TAggregate, TIdentity>.Save(TAggregate instance)
         {
             var keyValues = this.parseKeyValueFields(instance.Id);
             var commandText = $@"
@@ -238,7 +238,7 @@ ORDER BY version, date_time
                     Source = reader.IsDBNull(reader.GetOrdinal("source")) ? null : reader.GetString(reader.GetOrdinal("source")),
                     Version = reader.GetInt32(reader.GetOrdinal("version")),
                     Timestamp = reader.GetDateTime(reader.GetOrdinal("date_time")),
-                    Payload = JsonConvert.DeserializeObject(reader.GetString(reader.GetOrdinal("payload"))),// (string)getEventCommand.Parameters["@payload"].Value;
+                    Payload = reader.GetString(reader.GetOrdinal("payload")), // (string)getEventCommand.Parameters["@payload"].Value;
             };
                 return !eventId.Equals(Guid.Empty);
             }            

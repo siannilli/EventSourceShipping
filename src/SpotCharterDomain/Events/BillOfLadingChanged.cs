@@ -8,15 +8,14 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 namespace SpotCharterDomain.Events
 {
-    public class BillOfLadingChanged: Event
+    public class BillOfLadingChanged: Event<SpotCharterId>
     {
-        public BillOfLadingChanged(Guid eventId, int version, SpotCharterId sourceId, 
+        public BillOfLadingChanged(SpotCharterId sourceId, int version, 
             DateTime date,
             CargoQuantity quantity,
             string documentReference)
-            :base(eventId, version)
+            :base(sourceId, version)
         {
-            this.SpotCharterId = sourceId;
             this.Date = date;
             this.Quantity = quantity;
         }
@@ -24,7 +23,6 @@ namespace SpotCharterDomain.Events
         public DateTime Date { get; private set; }
         public string DocumentReference { get; private set; }
         public CargoQuantity Quantity { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
 
     }
 }

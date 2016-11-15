@@ -11,11 +11,10 @@ namespace RabbitMQEventDispatcher
 {
     public class RabbitMQEventConsumer : RabbitMQClient, IEventConsumer
     {
-        public event EventReceived EventReceivedHandler;
+        public event EventReceived ReceivedEventHandler;
         private readonly Dictionary<Guid, ulong> incomingEvents = new Dictionary<Guid, ulong>();
         private EventingBasicConsumer consumer;
         private IModel channel;
-
 
         public RabbitMQEventConsumer(string host = "localhost", string vhost ="/", int port = 5672, string username = "guest", string password = "guest")
             : base(host, vhost, port, username, password)
@@ -45,9 +44,9 @@ namespace RabbitMQEventDispatcher
                     Payload = System.Text.Encoding.UTF8.GetString(e.Body)
                 };
 
-                System.Console.WriteLine($"Received event {dispatchEvent.Id}, {dispatchEvent.Payload}");
+                System.Console.WriteLine($"Received event type: {dispatchEvent.EventName}, Id: {dispatchEvent.Id}");
                 incomingEvents[dispatchEvent.Id] = e.DeliveryTag;
-                EventReceivedHandler?.Invoke(dispatchEvent);
+                ReceivedEventHandler?.Invoke(dispatchEvent);
 
             }
             catch (Exception ex)
@@ -77,8 +76,9 @@ namespace RabbitMQEventDispatcher
             // unregister consumer            
             if (this.consumer != null)
                 this.consumer.Received -= Consumer_Received;
+            if (channel != null && this.channel.IsOpen)
+                this.channel.Close();
 
-            this.channel.Close();
             this.currentConnection.Close();
         }
 

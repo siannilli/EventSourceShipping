@@ -7,13 +7,12 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 namespace SpotCharterDomain.Events
 {
-    class SpotCharterDeleted : BaseDomainObjects.Events.Event
+    class SpotCharterDeleted : BaseDomainObjects.Events.Event<SpotCharterId>
     {
-        public SpotCharterDeleted(Guid eventId, int version, SpotCharterId spotId) : base(eventId, version)
+        public SpotCharterDeleted( SpotCharterId spotId, int version) : base(spotId, version)
         {
-            this.SpotCharterId = spotId;
+
         }
 
-        public SpotCharterId SpotCharterId { get; private set; }
     }
 }

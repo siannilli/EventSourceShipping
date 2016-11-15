@@ -5,20 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using SharedShippingDomainsObjects.ValueObjects;
 using SharedShippingDomainsObjects.Enums;
+using BaseDomainObjects.Events;
+
 namespace SpotCharterDomain.Events
 {
-    public class DemurrageRateChanged : BaseDomainObjects.Events.Event
+    public class DemurrageRateChanged : BaseDomainObjects.Events.Event<SpotCharterId>
     {
-        public DemurrageRateChanged(Guid eventId, int version,  SpotCharterId spotId,
+        public DemurrageRateChanged(SpotCharterId spotId, int version,  
             DemurrageRate rate) 
-            : base(eventId, version)
+            : base(spotId, version)
         {
-            this.SpotCharterId = spotId;
             this.Rate = rate;
         }
 
 
         public DemurrageRate Rate { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
     }
 }

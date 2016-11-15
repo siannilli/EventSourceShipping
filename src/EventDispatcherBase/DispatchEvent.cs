@@ -9,6 +9,7 @@ namespace EventDispatcherBase
     {
 
         public Guid Id { get; set; }
+        
         public string EventName { get; set; }
         public DateTime Timestamp { get; set; }
         public int Version { get; set; }

@@ -9,18 +9,17 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 namespace SpotCharterDomain.Events
 {
-    public class CharterpartyChanged: Event
+    public class CharterpartyChanged: Event<SpotCharterId>
     {
-        public CharterpartyChanged(Guid eventId, int version, SpotCharterId spotId, CounterpartyId charterpartyId, string name)
-            : base(eventId, version)
+        public CharterpartyChanged(SpotCharterId spotId, int version, 
+            CounterpartyId charterpartyId, string name)
+            : base(spotId, version)
         {
-            this.SpotCharterId = spotId;
             this.CharterpartyId = charterpartyId;
             this.CurrentName = name;
         }
 
         public CounterpartyId CharterpartyId { get; private set; }
         public string CurrentName { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
     }
 }

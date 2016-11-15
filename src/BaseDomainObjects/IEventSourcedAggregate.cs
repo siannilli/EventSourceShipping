@@ -9,7 +9,7 @@ namespace BaseDomainObjects
     public interface IEventSourcedAggregate<TIdentity>
     {
         TIdentity Id { get; }
-        IEnumerable<IEvent> Events { get; }
+        IEnumerable<IEvent<TIdentity>> Events { get; }
         int Version { get; }
     }
 }

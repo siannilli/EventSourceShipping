@@ -42,6 +42,10 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SpotCharterViewUpdaterHost"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SpotCharterQueryRepository", "src\SpotCharterQueryRepository\SpotCharterQueryRepository.xproj", "{D4801E3D-C028-4BE1-8928-2C7BE4DBD498}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MongoDbClientTests", "test\MongoDbClientTests\MongoDbClientTests.xproj", "{84465B87-DDBC-4543-AA0A-B627285BA951}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SpotCharterEventsDispatcher", "src\SpotCharterEventsDispatcher\SpotCharterEventsDispatcher.xproj", "{9536C9D6-2730-4070-A4CB-5F8F0B7A028A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -108,6 +112,14 @@ Global
 		{D4801E3D-C028-4BE1-8928-2C7BE4DBD498}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4801E3D-C028-4BE1-8928-2C7BE4DBD498}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4801E3D-C028-4BE1-8928-2C7BE4DBD498}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84465B87-DDBC-4543-AA0A-B627285BA951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84465B87-DDBC-4543-AA0A-B627285BA951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84465B87-DDBC-4543-AA0A-B627285BA951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84465B87-DDBC-4543-AA0A-B627285BA951}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9536C9D6-2730-4070-A4CB-5F8F0B7A028A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9536C9D6-2730-4070-A4CB-5F8F0B7A028A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9536C9D6-2730-4070-A4CB-5F8F0B7A028A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9536C9D6-2730-4070-A4CB-5F8F0B7A028A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,5 +140,7 @@ Global
 		{58335818-E9AA-48A1-84F7-CD3E9F8E9502} = {C5165B69-4F90-4AFD-B494-F265CAA9779C}
 		{E337AE89-EB77-4E4F-88B5-299E8ACA0D84} = {C5165B69-4F90-4AFD-B494-F265CAA9779C}
 		{D4801E3D-C028-4BE1-8928-2C7BE4DBD498} = {C5165B69-4F90-4AFD-B494-F265CAA9779C}
+		{84465B87-DDBC-4543-AA0A-B627285BA951} = {F3D3278B-B7D5-4868-A29E-3147A0255DB8}
+		{9536C9D6-2730-4070-A4CB-5F8F0B7A028A} = {C5165B69-4F90-4AFD-B494-F265CAA9779C}
 	EndGlobalSection
 EndGlobal

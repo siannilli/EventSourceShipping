@@ -8,16 +8,15 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 namespace SpotCharterDomain.Events
 {
-    public class LaycanChanged: Event
+    public class LaycanChanged: Event<SpotCharterId>
     {
-        public LaycanChanged(Guid eventId, int version, SpotCharterId spotId, DateRange laycan)
-            : base(eventId, version)
+        public LaycanChanged(SpotCharterId spotId, int version, 
+            DateRange laycan)
+            : base(spotId, version)
         {
-            this.SpotCharterId = spotId;
             this.Laycan = laycan;
         }
 
         public DateRange Laycan { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
     }
 }

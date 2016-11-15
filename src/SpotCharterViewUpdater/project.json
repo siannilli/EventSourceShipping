@@ -5,6 +5,7 @@
     "BaseDomainObjects": "1.0.0-*",
     "EventDispatcherBase": "1.0.0-*",
     "NETStandard.Library": "1.6.0",
+    "Newtonsoft.Json": "9.0.1",
     "SharedShippingDomainObjects": "1.0.0-*",
     "SpotCharterDomain": "1.0.0-*"
   },

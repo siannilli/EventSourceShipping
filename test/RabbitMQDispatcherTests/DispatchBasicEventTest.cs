@@ -24,10 +24,10 @@ namespace Tests
                 ))
             {
 
-                var spotCreated = new SpotCharterCreated(Guid.NewGuid(), 1, new SpotCharterId(Guid.NewGuid()), DateTime.Now, new CounterpartyId(Guid.NewGuid()), "Counterparty", new VesselId(Guid.NewGuid()), "Vessel", new CargoQuantity("MT", 5000));
-                var freight = new FreightRateChanged(Guid.NewGuid(), new SpotCharterId(Guid.NewGuid()), 1, new SpotCharterDomain.ValueObjects.FreightRate(100000));
+                var spotCreated = new SpotCharterCreated(new SpotCharterId(Guid.NewGuid()), 1,  DateTime.Now, new CounterpartyId(Guid.NewGuid()), "Counterparty", new VesselId(Guid.NewGuid()), "Vessel", new CargoQuantity("MT", 5000));
+                var freight = new FreightRateChanged(new SpotCharterId(Guid.NewGuid()), 1, new SpotCharterDomain.ValueObjects.FreightRate(100000));
 
-                BaseDomainObjects.IEvent @event = spotCreated;
+                BaseDomainObjects.IEvent<SpotCharterId> @event = spotCreated;
 
                 var dispatchEvent = new DispatchEvent()
                 {

@@ -145,7 +145,7 @@ VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, @ev
 
         protected abstract IDictionary<string, Tuple<NpgsqlTypes.NpgsqlDbType,object>> parseKeyValueFields(TIdentity identity);
 
-        protected IEnumerable<IEvent> GetEventStream(TIdentity id)
+        protected IEnumerable<IEvent<TIdentity>> GetEventStream(TIdentity id)
         {
 
             var settings = new Newtonsoft.Json.JsonSerializerSettings()
@@ -153,7 +153,7 @@ VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, @ev
                 ContractResolver = new JsonNet.PrivateSettersContractResolvers.PrivateSetterContractResolver()
             };
 
-            var returnList = new List<IEvent>();
+            var returnList = new List<IEvent<TIdentity>>();
 
             var keyValues = this.parseKeyValueFields(id);
             var commandText = $@"
@@ -184,7 +184,7 @@ ORDER BY version, date_time
                 {
                     var type = Type.GetType(reader.GetString(1)); 
                     var @event = JsonConvert.DeserializeObject(reader.GetString(0), type, settings);
-                    returnList.Add(@event as IEvent);
+                    returnList.Add(@event as IEvent<TIdentity>);
                 }
 
                 return returnList;
@@ -227,7 +227,7 @@ ORDER BY version, date_time
                 connection.Open();
                 var reader = getEventCommand.ExecuteReader();
 
-                if (!reader.Read())
+                if (!reader.Read() || reader.IsDBNull(0))
                     return false;
 
 

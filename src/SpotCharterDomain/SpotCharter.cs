@@ -42,17 +42,17 @@ namespace SpotCharterDomain
             : this()
         {
             
-            this.UpdateAggregate(new SpotCharterCreated(Guid.NewGuid(), 1, new SpotCharterId(Guid.NewGuid()), charterpartyDate, charterpartyId, charterpartyName, vesselId, vesselName, minimumQuantity));                
+            this.UpdateAggregate(new SpotCharterCreated(new SpotCharterId(Guid.NewGuid()), 1, charterpartyDate, charterpartyId, charterpartyName, vesselId, vesselName, minimumQuantity));                
         }
 
-        public SpotCharter(IEnumerable<IEvent> events)
+        public SpotCharter(IEnumerable<IEvent<SpotCharterId>> events)
             :this()
         {
             SpotCharterCreated firstEvent = events.FirstOrDefault(e => e is SpotCharterCreated) as SpotCharterCreated;
             if (firstEvent == null)
                 throw new InvalidOperationException("Missing creation event");
 
-            this.Id = firstEvent.SpotCharterId;
+            this.Id = firstEvent.AggregateId;
             this.ReplayEvents(events);
         }
 
@@ -82,7 +82,7 @@ namespace SpotCharterDomain
 
         public void ChangePortfolio(PortfolioId newPortfolio)
         {
-            this.UpdateAggregate(new PortfolioChanged(Guid.NewGuid(), this.Version + 1, this.Id, newPortfolio));
+            this.UpdateAggregate(new PortfolioChanged(this.Id,  this.Version + 1, newPortfolio));
         }
 
         public void ChangeDemurrageRate(double laytimeLoad, 
@@ -91,43 +91,43 @@ namespace SpotCharterDomain
             CostAmount priceUnit,
             DemurrageRateTimeUnit interval)
         {
-            this.UpdateAggregate(new DemurrageRateChanged(Guid.NewGuid(), this.Version + 1 , this.Id, new DemurrageRate(laytimeLoad, laytimeDischarge, laytimeTotal, priceUnit, interval)));
+            this.UpdateAggregate(new DemurrageRateChanged(this.Id, this.Version + 1 , new DemurrageRate(laytimeLoad, laytimeDischarge, laytimeTotal, priceUnit, interval)));
         }
 
         public void ChangeVessel(VesselId vesselId, string vesselName)
         {
-            this.UpdateAggregate(new VesselChanged(Guid.NewGuid(), this.Version + 1, this.Id, vesselId, vesselName));
+            this.UpdateAggregate(new VesselChanged(this.Id,  this.Version + 1, vesselId, vesselName));
         }
 
         public void ChangeCharterparty(CounterpartyId counterpartyId, string counterpartyName)
         {
-            this.UpdateAggregate(new CharterpartyChanged(Guid.NewGuid(), this.Version + 1, this.Id, counterpartyId, counterpartyName));
+            this.UpdateAggregate(new CharterpartyChanged(this.Id, this.Version + 1, counterpartyId, counterpartyName));
         }
 
         public void ChangeBillOfLading(DateTime date, CargoQuantity quantity, string documentReference)
         {
-            this.UpdateAggregate(new BillOfLadingChanged(Guid.NewGuid(), this.Version + 1, this.Id, date, quantity, documentReference));
+            this.UpdateAggregate(new BillOfLadingChanged(this.Id, this.Version + 1, date, quantity, documentReference));
         }
 
         public void  ChangeFreightRate(decimal flat, decimal worldScale, Enums.OverageType overageType, decimal overageValue)
         {
-            this.UpdateAggregate(new FreightRateChanged(Guid.NewGuid(), this.Id, this.Version + 1,
+            this.UpdateAggregate(new FreightRateChanged(this.Id, this.Version + 1,
                 new ValueObjects.FreightRate(flat, worldScale, new ValueObjects.Overage(overageType, overageValue))));
         }
 
         public void ChangeFreightRate(decimal lumpsum)
         {
-            this.UpdateAggregate(new FreightRateChanged(Guid.NewGuid(), this.Id, this.Version + 1, new ValueObjects.FreightRate(lumpsum)));
+            this.UpdateAggregate(new FreightRateChanged(this.Id, this.Version + 1, new ValueObjects.FreightRate(lumpsum)));
         }
 
         public void ChangeFreightRate(decimal price, string uom, Enums.OverageType overageType, decimal overageValue)
         {
-            this.UpdateAggregate(new FreightRateChanged(Guid.NewGuid(), this.Id, this.Version + 1, new ValueObjects.FreightRate(price, uom, new ValueObjects.Overage(overageType, overageValue))));
+            this.UpdateAggregate(new FreightRateChanged(this.Id, this.Version + 1, new ValueObjects.FreightRate(price, uom, new ValueObjects.Overage(overageType, overageValue))));
         }
 
         public void ChangeLaycan(DateTime from, DateTime to)
         {
-            this.UpdateAggregate(new LaycanChanged(Guid.NewGuid(), this.Version + 1, this.Id, new DateRange(from, to)));
+            this.UpdateAggregate(new LaycanChanged(this.Id, this.Version + 1, new DateRange(from, to)));
         }
 
         #endregion
@@ -136,7 +136,7 @@ namespace SpotCharterDomain
 
         private void OnSpotCharterCreated(SpotCharterCreated @event)
         {
-            this.Id = @event.SpotCharterId;
+            this.Id = @event.AggregateId;
             this.CharterpartyDate = @event.CharterpartyDate;
             this.CharterpartyId = @event.CounterpartyId;
             this.CharterpartyName = @event.CounterpartyCurrentName;

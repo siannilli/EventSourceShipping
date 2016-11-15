@@ -3,6 +3,7 @@
 
   "dependencies": {
     "BaseDomainObjects": "1.0.0-*",
+    "MongoDB.Driver": "2.3.0",
     "NETStandard.Library": "1.6.0",
     "SharedShippingDomainObjects": "1.0.0-*",
     "SpotCharterDomain": "1.0.0-*"

@@ -10,10 +10,10 @@ namespace BaseDomainObjects.Aggregates
 {
     public class EventSourcedAggregate<TIdentity> : Entity<TIdentity>, IEventSourcedAggregate<TIdentity>
     {
-        private readonly Dictionary<Type, Action<IEvent>> handlers = new Dictionary<Type, Action<IEvent>>();
+        private readonly Dictionary<Type, Action<IEvent<TIdentity>>> handlers = new Dictionary<Type, Action<IEvent<TIdentity>>>();
         int version = 0;
         
-        IList<IEvent> pendingEvents = new List<IEvent>();    
+        IList<IEvent<TIdentity>> pendingEvents = new List<IEvent<TIdentity>>();    
 
 
         public EventSourcedAggregate(TIdentity id)
@@ -21,13 +21,13 @@ namespace BaseDomainObjects.Aggregates
         {
 
         }
-        public EventSourcedAggregate(TIdentity id, IEnumerable<IEvent> events)
+        public EventSourcedAggregate(TIdentity id, IEnumerable<IEvent<TIdentity>> events)
             : base(id)
         {
             this.ReplayEvents(events);
         }
                
-        public void Handles<TEvent>(Action<TEvent> eventHandler) where TEvent : IEvent
+        public void Handles<TEvent>(Action<TEvent> eventHandler) where TEvent : IEvent<TIdentity>
         {
             this.handlers[typeof(TEvent)] = @event => eventHandler((TEvent)@event);
         } 
@@ -40,7 +40,7 @@ namespace BaseDomainObjects.Aggregates
             }
         }
 
-        protected void ReplayEvents(IEnumerable<IEvent> events)
+        protected void ReplayEvents(IEnumerable<IEvent<TIdentity>> events)
         {
             foreach (var @event in events)
             {
@@ -51,7 +51,7 @@ namespace BaseDomainObjects.Aggregates
             this.version = events.Max(e => e.Version);
         }
 
-        private void PlayEvent(IEvent @event)
+        private void PlayEvent(IEvent<TIdentity> @event)
         {
             var handler = this.handlers[@event.GetType()];
             handler.Invoke(@event);
@@ -59,7 +59,7 @@ namespace BaseDomainObjects.Aggregates
             this.pendingEvents.Add(@event);
         }
 
-        protected void UpdateAggregate(IEvent @event)
+        protected void UpdateAggregate(IEvent<TIdentity> @event)
         {
             if (@event.Version <= this.version)
                 throw new InvalidAggregateVersionException();
@@ -69,7 +69,7 @@ namespace BaseDomainObjects.Aggregates
 
         public int Version { get { return this.version; } }
 
-        IEnumerable<IEvent> IEventSourcedAggregate<TIdentity>.Events
+        IEnumerable<IEvent<TIdentity>> IEventSourcedAggregate<TIdentity>.Events
         {
             get
             {

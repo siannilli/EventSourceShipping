@@ -8,16 +8,14 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 namespace SpotCharterDomain.Events
 {
-    public class PortfolioChanged: Event
+    public class PortfolioChanged: Event<SpotCharterId>
     {
-        public PortfolioChanged(Guid eventId, int version, SpotCharterId spotId, PortfolioId portfolioId)
-            : base(eventId, version)
+        public PortfolioChanged(SpotCharterId spotId, int version, PortfolioId portfolioId)
+            : base(spotId, version)
         {
             this.PorfolioId = portfolioId;
-            this.SpotCharterId = spotId;
         }
 
         public PortfolioId PorfolioId { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
     }
 }

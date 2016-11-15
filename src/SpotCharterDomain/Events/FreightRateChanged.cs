@@ -8,15 +8,15 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 namespace SpotCharterDomain.Events
 {
-    public class FreightRateChanged: Event
+    public class FreightRateChanged: Event<SpotCharterId>
     {
-        public FreightRateChanged(Guid eventId, SpotCharterId spotId, int version, ValueObjects.FreightRate freightRate)
-            : base(eventId, version)
+        public FreightRateChanged(SpotCharterId spotId, int version, 
+            ValueObjects.FreightRate freightRate)
+            : base(spotId, version)
         {
-            this.SpotCharterId = spotId;
+            this.FreightRate  = freightRate;
         }
 
-        public SpotCharterId SpotCharterId { get; private set; }
         public ValueObjects.FreightRate FreightRate { get; private set; }
 
     }

@@ -61,12 +61,12 @@ namespace SpotDomainTests
         [TestMethod]
         public void CreateAggregateFromEventStream()
         {
-            var eventStream = new List<IEvent>()
+            var eventStream = new List<IEvent<SpotCharterId>>()
         {
-            new SpotCharterCreated(Guid.NewGuid(), 1, spotId, DateTime.Now, cpId1, counterparty1, vesselId, vesselName, minimumQuantityStart),
-            new LaycanChanged(Guid.NewGuid(), 2, spotId, laycan ),
-            new DemurrageRateChanged(Guid.NewGuid(), 3, spotId, demurrageRate),
-            new CharterpartyChanged(Guid.NewGuid(), 4, spotId, cpId2, counterparty2),
+            new SpotCharterCreated( spotId, 1, DateTime.Now, cpId1, counterparty1, vesselId, vesselName, minimumQuantityStart),
+            new LaycanChanged(spotId, 2, laycan ),
+            new DemurrageRateChanged(spotId, 3, demurrageRate),
+            new CharterpartyChanged(spotId,  4, cpId2, counterparty2),
         };
 
             var spot = new SpotCharterDomain.SpotCharter(eventStream);

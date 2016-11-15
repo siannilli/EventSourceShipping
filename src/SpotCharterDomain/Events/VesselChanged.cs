@@ -9,10 +9,10 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 namespace SpotCharterDomain.Events
 {
-    public class VesselChanged : Event
+    public class VesselChanged : Event<SpotCharterId>
     {
-        public VesselChanged(Guid eventId, int version, SpotCharterId spotId, VesselId vesselId, string name)
-            : base(eventId, version)
+        public VesselChanged(SpotCharterId spotId, int version, VesselId vesselId, string name)
+            : base(spotId, version)
         {
             this.SpotCharterId = spotId;
             this.VesselId = vesselId;

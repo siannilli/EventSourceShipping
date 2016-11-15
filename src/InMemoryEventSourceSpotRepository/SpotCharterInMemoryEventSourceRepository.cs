@@ -14,7 +14,7 @@ namespace SpotCharterInMemoryEventSourceRepository
 {
     public class SpotCharterInMemoryEventSourceRepository: ISpotCharterCommandRepository    
     {
-        public readonly IDictionary<SpotCharterId, IEnumerable<IEvent>> repository = new Dictionary<SpotCharterId, IEnumerable<IEvent>>();
+        public readonly IDictionary<SpotCharterId, IEnumerable<IEvent<SpotCharterId>>> repository = new Dictionary<SpotCharterId, IEnumerable<IEvent<SpotCharterId>>>();
 
         SpotCharter IEventSourceCommandRepository<SpotCharter, SpotCharterId>.Get(SpotCharterId id)
         {
@@ -28,7 +28,7 @@ namespace SpotCharterInMemoryEventSourceRepository
         void IEventSourceCommandRepository<SpotCharter, SpotCharterId>.Save(SpotCharter instance)
         {
             SpotCharterId id = instance.Id;
-            IList<IEvent> eventStream = this.repository.ContainsKey(id) ? this.repository[id].ToList() : new List<IEvent>();
+            IList<IEvent<SpotCharterId>> eventStream = this.repository.ContainsKey(id) ? this.repository[id].ToList() : new List<IEvent<SpotCharterId>>();
 
             IEventSourcedAggregate<SpotCharterId> spotEventsInterface = instance;
 

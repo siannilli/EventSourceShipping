@@ -6,24 +6,44 @@ using System.Threading.Tasks;
 
 namespace BaseDomainObjects.Events
 {
-    public class Event : Entities.Entity<Guid>, IEvent
+    public class Event<TAggregateIdentity> : Entities.Entity<Guid>, IEvent<TAggregateIdentity>
     {
-        public Event(Guid eventId, int version)
-            : base(eventId)
+
+        public Event(TAggregateIdentity aggregateId)
+            : this(aggregateId, Guid.NewGuid())
         {
-            this.Id = eventId;
-            this.Version = version;
+
         }
 
-        public Event(Guid eventId, int version, string source)
-            : this(eventId, version)
+        public Event(TAggregateIdentity aggregateId, int version)
+            : this(aggregateId, Guid.NewGuid(), version)
         {
+
+        }
+
+        public Event(TAggregateIdentity aggregateId, Guid eventId)
+            : this(aggregateId, eventId, 1)
+        {
+
+        }
+
+        public Event(TAggregateIdentity aggregateId, Guid eventId, int version)
+            : this(aggregateId, eventId, version, null)
+        {
+
+        }
+
+        public Event(TAggregateIdentity aggregateId, Guid eventId, int version, string source)
+            : base(eventId)
+        {
+            this.AggregateId = aggregateId;
+            this.Version = version;
             this.Source = source;
         }
         
         public int Version { get; private set; }
 
-        string IEvent.EventName
+        public string EventName
         {
             get
             {
@@ -31,31 +51,16 @@ namespace BaseDomainObjects.Events
             }
         }
 
-        Guid IEvent.Id
+        public string Source
         {
-            get
-            {
-                return this.Id;
-            }
-
+            get;
+            private set;
         }
 
-        int IEvent.Version
+        public TAggregateIdentity AggregateId
         {
-            get
-            {
-                return this.Version;
-            }
+            get; private set;
         }
 
-        string IEvent.Source
-        {
-            get
-            {
-                return this.Source;
-            }
-        }
-
-        public string Source { get; private set; }
     }
 }

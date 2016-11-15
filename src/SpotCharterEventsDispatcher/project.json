@@ -12,11 +12,8 @@
       "version": "1.0.1"
     },
     "RabbitMQEventDispatcher": "1.0.0-*",
-    "SharedShippingDomainObjects": "1.0.0-*",
     "SpotCharterDomain": "1.0.0-*",
-    "SpotCharterEventSourceRepository": "1.0.0-*",
-    "SpotCharterQueryRepository": "1.0.0-*",
-    "SpotCharterViewUpdater": "1.0.0-*"
+    "SpotCharterEventSourceRepository": "1.0.0-*"
   },
 
   "frameworks": {

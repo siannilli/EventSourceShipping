@@ -9,7 +9,7 @@ namespace EventDispatcherBase
 
     public interface IEventConsumer: IDisposable
     {
-        event EventReceived EventReceivedHandler;
+        event EventReceived ReceivedEventHandler;
         void AckReceived(Guid eventId);
         void Quit();
 

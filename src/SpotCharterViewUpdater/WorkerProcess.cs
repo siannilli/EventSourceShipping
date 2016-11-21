@@ -19,16 +19,16 @@ namespace SpotCharterViewUpdater
         private readonly ISpotCharterCommandRepository source;
         private readonly ISpotCharterUpdateViewRepository destination;
         
-        // this structure avoids multiple updates of an instance when getting several events for the same version
-        // even if the service restarts, the update will happen just one time for the same version
-
-        private readonly Dictionary<SpotCharterId, int> lastVersion = new Dictionary<SpotCharterId, int>(); 
+        // this structure avoids multiple updates of an instance when getting multiple events for the same version
+        // if the service restarts, the update will happen one time for the same entity version
+        private readonly Dictionary<SpotCharterId, int> lastVersionsDictionary = new Dictionary<SpotCharterId, int>(); 
 
         public WorkerProcess(IEventConsumer consumer,
             ISpotCharterCommandRepository source,
             ISpotCharterUpdateViewRepository destination)
         {
 
+            // Define mapping rule between Command and Query models
             Mapper.Initialize(cfg => {
                 cfg.CreateMap<SpotCharterDomain.ValueObjects.FreightRate, string>().ConstructUsing((rate, ctx) => rate?.ToString() ?? null);
                 cfg.CreateMap<SpotCharter, SpotCharterView>()
@@ -48,7 +48,7 @@ namespace SpotCharterViewUpdater
                     var spotId = new SpotCharterId(Guid.Parse(eventPayload.AggregateId.Value.ToString()));
 
                     // check if last version has been updated already         
-                    if (!lastVersion.Keys.Contains(spotId) || lastVersion[spotId] < e.Version)
+                    if (!lastVersionsDictionary.Keys.Contains(spotId) || lastVersionsDictionary[spotId] < e.Version)
                     {
                         switch (e.EventName)
                         {
@@ -62,11 +62,13 @@ namespace SpotCharterViewUpdater
                                 var spotView = Mapper.Map<SpotCharterView>(spot);
 
                                 destination.Save(spotView);
+                                lastVersionsDictionary[spotId] = spot.Version; // put the version from the entity, not from the processing event
+
                                 Console.WriteLine("Spot {0} updated to version {1}", spotId, spot.Version);
                                 break;
                         }
+
                         Console.WriteLine("[{3:HH:mm:ss}] Event {0}\tSpot Id {1} Version {2} processed.", e.EventName, spotId, e.Version, DateTime.Now);                    
-                        lastVersion[spotId] = e.Version;
 
                     }
                     else
@@ -83,9 +85,9 @@ namespace SpotCharterViewUpdater
             };
         }
 
-        public void StartConsuming(string queueName)
+        public void Start(string queueName)
         {
-            this.consumer.StartReceiving(queueName);
+            this.consumer.StartConsumingEvents(queueName);
         }
 
         public void Quit()

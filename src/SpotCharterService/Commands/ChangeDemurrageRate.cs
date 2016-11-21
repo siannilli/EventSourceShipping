@@ -13,6 +13,8 @@ namespace SpotCharterServices.Commands
     public class ChangeDemurrageRate: Command
     {
 
+        public ChangeDemurrageRate(): base(Guid.NewGuid()) { }
+
         public ChangeDemurrageRate(SpotCharterId spotId, 
             double laytimeLoad,
             double laytimeDischarge,
@@ -29,11 +31,11 @@ namespace SpotCharterServices.Commands
             this.TimeUnit = timeUnit;
         }
 
-        public double LaytimeDischarge { get; private set; }
-        public double LaytimeLoad { get; private set; }
-        public double LaytimeTotal { get; internal set; }
-        public CostAmount Rate { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
-        public DemurrageRateTimeUnit TimeUnit { get; private set; }
+        public double LaytimeDischarge { get; set; }
+        public double LaytimeLoad { get; set; }
+        public double LaytimeTotal { get; set; }
+        public CostAmount Rate { get; set; }
+        public SpotCharterId SpotCharterId { get; set; }
+        public DemurrageRateTimeUnit TimeUnit { get; set; }
     }
 }

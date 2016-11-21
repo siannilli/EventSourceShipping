@@ -11,6 +11,8 @@ namespace SpotCharterServices.Commands
 {
     public class ChangeLaycan: Command
     {
+
+        public ChangeLaycan(): base(Guid.NewGuid()) { }
         public ChangeLaycan(SpotCharterId spotId, DateTime from, DateTime to)
             : base(Guid.NewGuid())
         {
@@ -19,8 +21,8 @@ namespace SpotCharterServices.Commands
             this.To = to;
         }
 
-        public DateTime From { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
-        public DateTime To { get; private set; }
+        public DateTime From { get; set; }
+        public SpotCharterId SpotCharterId { get; set; }
+        public DateTime To { get; set; }
     }
 }

@@ -11,6 +11,7 @@ namespace SpotCharterServices.Commands
 {
     public class ChangePortfolio: Command
     {
+        public ChangePortfolio(): base(Guid.NewGuid()) { }
         public ChangePortfolio(SpotCharterId spotId, PortfolioId portfolioId)
             : base(Guid.NewGuid())
         {
@@ -18,7 +19,7 @@ namespace SpotCharterServices.Commands
             this.PortfolioId = portfolioId;
         }
 
-        public PortfolioId PortfolioId { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
+        public PortfolioId PortfolioId { get; set; }
+        public SpotCharterId SpotCharterId { get; set; }
     }
 }

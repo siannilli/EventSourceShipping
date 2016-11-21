@@ -13,7 +13,7 @@ namespace EventDispatcherBase
         void AckReceived(Guid eventId);
         void Quit();
 
-        void StartReceiving(string queueName);
+        void StartConsumingEvents(string queueName);
 
     }
 }

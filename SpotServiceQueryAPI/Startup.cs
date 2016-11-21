@@ -44,7 +44,7 @@ namespace SpotServiceQueryAPI
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
 
-            // Add singleton repository service for document database with stored objects
+            // Add singleton repository instance for document database with view model instances
             services.AddSingleton<ISpotCharterQueryRepository, SpotCharterQueryRepository>((provider) =>
                 new SpotCharterQueryRepository(
                     host: Configuration.GetSection("DocumentStore")["host"], 

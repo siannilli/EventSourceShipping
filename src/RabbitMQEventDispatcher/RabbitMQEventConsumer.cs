@@ -82,7 +82,7 @@ namespace RabbitMQEventDispatcher
             this.currentConnection.Close();
         }
 
-        public void StartReceiving(string queueName)
+        public void StartConsumingEvents(string queueName)
         {
             if (string.IsNullOrEmpty(queueName))
                 throw new NullReferenceException("Queue name cannot be null.");

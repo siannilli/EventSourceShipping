@@ -45,10 +45,11 @@ namespace SpotServiceCommandAPI
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
 
+            // configuration settings for db and message broker
             var databaseConfig = Configuration.GetSection("EventSourceDatabase");
             var messageBroker = Configuration.GetSection("MessageBroker");
 
-            // Add reference to EventSourceRepository (and message broker)
+            // defines service instance for command handlers and inject repository and message broker instances
             var spotService = new SpotCharterServices.SpotCharterCommandHandler(new SpotCharterEventSourceRepository(
                 database: databaseConfig["database"],
                 login: databaseConfig["login"],
@@ -65,7 +66,7 @@ namespace SpotServiceCommandAPI
                     exchangeName: messageBroker["exchangeName"])                 
                 ));
 
-            // define singleto services for command handlers
+            // define singleton services for command handlers (all pointing to the same implementation instance)
             services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.CreateSpotCharter>>(spotService);
             services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeVessel>>(spotService);
             services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeCharterparty>>(spotService);

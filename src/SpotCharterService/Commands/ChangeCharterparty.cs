@@ -11,6 +11,8 @@ namespace SpotCharterServices.Commands
 {
     public class ChangeCharterparty: Command
     {
+        public ChangeCharterparty()
+            : base(Guid.NewGuid()) { }
         public ChangeCharterparty(SpotCharterId spotId, CounterpartyId newChartepartyId, string newCharterpartyName)
             : base(Guid.NewGuid())
         {
@@ -19,8 +21,8 @@ namespace SpotCharterServices.Commands
             this.Name = newCharterpartyName;
         }
 
-        public CounterpartyId CharterpartyId { get; private set; }
-        public string Name { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
+        public CounterpartyId CharterpartyId { get; set; }
+        public string Name { get; set; }
+        public SpotCharterId SpotCharterId { get; set; }
     }
 }

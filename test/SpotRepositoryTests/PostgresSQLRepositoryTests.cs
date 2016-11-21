@@ -73,7 +73,7 @@ namespace SpotRepositoryTests
         {
             var spot = GetSpotCharter();
             ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
-                (database: "SpotCharters", login: "spot_user", password: "spot_user", applicationName: "SpotRepositoryEvent", host: "sql-db", messageBroker: new RabbitMQEventDispatcher.RabbitMQEventDispatcher("message-broker", "/test", username: "siannilli", password:"siannilli", exchangeName: "chartering.spot"));
+                (database: "SpotCharters", login: "spot_user", password: "spot_user", applicationName: "SpotRepositoryTests", host: "sql-db", messageBroker: new RabbitMQEventDispatcher.RabbitMQEventDispatcher("message-broker", "/test", username: "siannilli", password:"siannilli", exchangeName: "chartering.spot"));
 
             repository.Save(spot);
 

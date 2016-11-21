@@ -14,7 +14,6 @@ namespace Shipping.Repositories
     public class SpotCharterQueryRepository: ISpotCharterUpdateViewRepository, ISpotCharterQueryRepository
     {
         private const string spotChartersCollectionName = "spot.charters";
-        private readonly string connectionString;
         private readonly MongoCredential credential;
         private readonly string database;
         private readonly string password;
@@ -23,7 +22,6 @@ namespace Shipping.Repositories
 
         public SpotCharterQueryRepository(string host = "localhost", string database = "spotService", int port = 27017, string username = null, string password = null)
         {
-            this.connectionString = $"mongodb://{username}:{password}@{host}:{port}/{database}";
             this.username = username;
             this.password = password;
             this.database = database;

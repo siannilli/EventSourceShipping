@@ -9,10 +9,16 @@ using Shipping.Repositories;
 
 namespace SpotCharterViewUpdaterHost
 {
+
+    /// <summary>
+    /// Simple host for SpotCharterViewUpdater
+    /// </summary>
     public class Program
     {
+
         public static void Main(string[] args)
         {
+            //TODO: read from configuration / env variables configuration parameters
             var workerProcess = new WorkerProcess(new RabbitMQEventConsumer(host: "message-broker", vhost: "/test", username: "siannilli", password: "siannilli"), 
                 new SpotCharterEventSourceRepository("SpotCharters", "spot_user", "spot_user", host: "sql-db"), 
                 new SpotCharterQueryRepository("doc-db", "spotService", username: "spotService", password: "spotService"));
@@ -20,7 +26,7 @@ namespace SpotCharterViewUpdaterHost
             Task.WaitAll(Task.Factory.StartNew(() =>
             {
                 Console.WriteLine("Consumer start waiting events from message broker.");
-                workerProcess.StartConsuming("chartering.spot.viewupdate");
+                workerProcess.Start("chartering.spot.viewupdate");
                 while (Console.ReadLine() != "quit") ;
                 Console.WriteLine("Quitting consumer ...");
                 workerProcess.Quit();

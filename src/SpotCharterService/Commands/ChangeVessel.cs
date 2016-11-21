@@ -13,6 +13,7 @@ namespace SpotCharterServices.Commands
 {
     public class ChangeVessel: Command
     {
+        public ChangeVessel() : base(Guid.NewGuid()) { }
         public ChangeVessel(SpotCharterId spotId, VesselId vesselId, string vesselName)
             : base(Guid.NewGuid())
         {
@@ -21,8 +22,8 @@ namespace SpotCharterServices.Commands
             this.Name = vesselName;
         }
 
-        public string Name { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
-        public VesselId VesselId { get; private set; }
+        public string Name { get; set; }
+        public SpotCharterId SpotCharterId { get; set; }
+        public VesselId VesselId { get; set; }
     }
 }

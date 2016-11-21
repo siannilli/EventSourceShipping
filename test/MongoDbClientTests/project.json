@@ -8,8 +8,7 @@
     "xunit": "2.1.0",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",
     "SpotCharterQueryRepository": "1.0.0-*",
-    "SpotCharterEventSourceRepository": "1.0.0-*",
-    "SpotCharterDomain": "1.0.0-*"
+    "SpotCharterViewModel": "1.0.0-*"
   },
   "testRunner": "xunit",
   "frameworks": {

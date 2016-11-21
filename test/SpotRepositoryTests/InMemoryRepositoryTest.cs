@@ -26,7 +26,7 @@ namespace Tests
         DateRange laycan = new DateRange(DateTime.Now.AddDays(3).Date, DateTime.Now.Date);
         DemurrageRate demurrageRate = new DemurrageRate(0, 0, 72, new CostAmount(new Currency("USD", "US DOLLAR", "$"), 25000), SharedShippingDomainsObjects.Enums.DemurrageRateTimeUnit.Day);
 
-        private SpotCharter GetSpotCharter()
+        private SpotCharter GetSpotCharterFromKnownId()
         {
             var spot = new SpotCharterDomain.SpotCharter(DateTime.Now, cpId1, counterparty1, vesselId, vesselName, minimumQuantityStart);
 
@@ -42,7 +42,7 @@ namespace Tests
         [TestMethod]
         public void TestInMemoryRepository()
         {
-            var spot = GetSpotCharter();
+            var spot = GetSpotCharterFromKnownId();
             ISpotCharterCommandRepository repository = new SpotCharterInMemoryEventSourceRepository.SpotCharterInMemoryEventSourceRepository();
 
             repository.Save(spot);
@@ -66,7 +66,7 @@ namespace Tests
         [TestMethodAttribute]
         public void TestEventInterface()
         {
-            var spot = GetSpotCharter();
+            var spot = GetSpotCharterFromKnownId();
             BaseDomainObjects.IEventSourcedAggregate<SpotCharterId> agg = spot;
 
             var evt = agg.Events.FirstOrDefault();

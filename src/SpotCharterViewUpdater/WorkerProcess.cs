@@ -5,8 +5,11 @@ using System.Threading.Tasks;
 
 using EventDispatcherBase;
 using SpotCharterDomain;
+using SpotCharterViewModel;
 using Newtonsoft.Json;
 using SharedShippingDomainsObjects.ValueObjects;
+
+using AutoMapper;
 
 namespace SpotCharterViewUpdater
 {
@@ -25,6 +28,12 @@ namespace SpotCharterViewUpdater
             ISpotCharterCommandRepository source,
             ISpotCharterUpdateViewRepository destination)
         {
+
+            Mapper.Initialize(cfg => {
+                cfg.CreateMap<SpotCharterDomain.ValueObjects.FreightRate, string>().ConstructUsing((rate, ctx) => rate?.ToString() ?? null);
+                cfg.CreateMap<SpotCharter, SpotCharterView>()
+                    .AfterMap((src, dest) => { dest.LastUpdate = DateTime.Now; });
+            });
 
             this.source = source;
             this.destination = destination;
@@ -49,11 +58,14 @@ namespace SpotCharterViewUpdater
                                 break;
                             default:
                                 var spot = source.Get(spotId);
-                                destination.Save(spot);
-                                Console.WriteLine("Spot {0} updated to version {1}", spotId, e.Version);
+
+                                var spotView = Mapper.Map<SpotCharterView>(spot);
+
+                                destination.Save(spotView);
+                                Console.WriteLine("Spot {0} updated to version {1}", spotId, spot.Version);
                                 break;
                         }
-                        Console.WriteLine("Event {0}\tSpot Id {1} Version {2} processed.", e.EventName, spotId, e.Version);                    
+                        Console.WriteLine("[{3:HH:mm:ss}] Event {0}\tSpot Id {1} Version {2} processed.", e.EventName, spotId, e.Version, DateTime.Now);                    
                         lastVersion[spotId] = e.Version;
 
                     }

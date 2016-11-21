@@ -15,7 +15,6 @@ namespace BaseDomainObjects.Aggregates
         
         IList<IEvent<TIdentity>> pendingEvents = new List<IEvent<TIdentity>>();    
 
-
         public EventSourcedAggregate(TIdentity id)
             : base(id)
         {

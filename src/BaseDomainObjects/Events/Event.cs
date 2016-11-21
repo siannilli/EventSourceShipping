@@ -39,6 +39,8 @@ namespace BaseDomainObjects.Events
             this.AggregateId = aggregateId;
             this.Version = version;
             this.Source = source;
+
+            this.Timestamp = DateTime.UtcNow;
         }
         
         public int Version { get; private set; }
@@ -62,5 +64,9 @@ namespace BaseDomainObjects.Events
             get; private set;
         }
 
+        public DateTime Timestamp
+        {
+            get; private set;
+        }
     }
 }

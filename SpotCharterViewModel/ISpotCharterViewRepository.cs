@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using SharedShippingDomainsObjects.ValueObjects;
 
-namespace SpotCharterDomain
+namespace SpotCharterViewModel
 {
     public interface ISpotCharterUpdateViewRepository
     {
-        SpotCharter GetById(SpotCharterId id);
-        void Save(SpotCharter spot);
-        void Remove(SpotCharter spot);
+        SpotCharterView GetById(SpotCharterId id);
+        void Save(SpotCharterView spot);
+        void Remove(SpotCharterView spot);
         void Remove(SpotCharterId id);
     }
 }

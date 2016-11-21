@@ -22,7 +22,8 @@ namespace RabbitMQEventDispatcher
             )
             : base(host, vhost, port, username, password)
         {
-
+            if (string.IsNullOrEmpty(exchangeName))
+                throw new ArgumentNullException("exchangeName", "Exchange name cannot be null");
             this.exchange = exchangeName;
             this.exchangeDeclare();
 

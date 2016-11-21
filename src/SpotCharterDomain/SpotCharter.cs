@@ -19,6 +19,7 @@ namespace SpotCharterDomain
         private SpotCharter()
             : base(new SpotCharterId(Guid.Empty))
         {
+            // declares all the (domain) events handled
             this.Handles<BillOfLadingChanged>(OnBillOfLadingChanged);
             this.Handles<DemurrageRateChanged>(OnDemurrageRateChanged);
             this.Handles<FreightRateChanged>(OnFreightRateChanged);
@@ -29,8 +30,6 @@ namespace SpotCharterDomain
             this.Handles<CharterpartyChanged>(OnCharterpartyChanged);
             this.Handles<LaycanChanged>(OnLaycanChanged);
         }
-
-
 
         public SpotCharter(SpotCharterId id)
             : this()
@@ -50,7 +49,7 @@ namespace SpotCharterDomain
         {
             SpotCharterCreated firstEvent = events.FirstOrDefault(e => e is SpotCharterCreated) as SpotCharterCreated;
             if (firstEvent == null)
-                throw new InvalidOperationException("Missing creation event");
+                throw new InvalidOperationException("Missing creation event"); 
 
             this.Id = firstEvent.AggregateId;
             this.ReplayEvents(events);
@@ -185,7 +184,7 @@ namespace SpotCharterDomain
 
         private void OnLaycanChanged(LaycanChanged @event)
         {
-            this.Laycan = @event.Laycan; ;
+            this.Laycan = @event.Laycan;
         }
 
         #endregion

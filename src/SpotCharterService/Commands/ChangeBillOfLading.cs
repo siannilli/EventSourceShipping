@@ -11,6 +11,8 @@ namespace SpotCharterServices.Commands
 {
     public class ChangeBillOfLading: Command
     {
+
+        public ChangeBillOfLading() : base(Guid.NewGuid()) { }
         public ChangeBillOfLading(SpotCharterId spotId,
             DateTime blDate,
             CargoQuantity blQuantity,
@@ -23,9 +25,9 @@ namespace SpotCharterServices.Commands
             this.DocumentReference = docReference;
         }
 
-        public DateTime BLDate { get; private set; }
-        public CargoQuantity BLQuantity { get; private set; }
-        public string DocumentReference { get; private set; }
-        public SpotCharterId SpotCharterId { get; private set; }
+        public DateTime BLDate { get; set; }
+        public CargoQuantity BLQuantity { get; set; }
+        public string DocumentReference { get; set; }
+        public SpotCharterId SpotCharterId { get; set; }
     }
 }

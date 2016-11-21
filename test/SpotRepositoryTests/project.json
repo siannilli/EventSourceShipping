@@ -8,6 +8,7 @@
     "SpotCharterEventSourceRepository": "1.0.0-*",
     "SpotCharterDomain": "1.0.0-*",
     "SharedShippingDomainObjects": "1.0.0-*",
+    "RabbitMQEventDispatcher": "1.0.0-*",
     "InMemoryEventSourceSpotRepository": "1.0.0-*",
     "EventDispatcherBase": "1.0.0-*",
     "dotnet-test-xunit": "1.0.0-rc2-192208-24",

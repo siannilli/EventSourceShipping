@@ -12,6 +12,7 @@ namespace SpotCharterServices.Commands
 {
     public class CreateSpotCharter : Command
     {
+        public CreateSpotCharter() : base(Guid.NewGuid()) { }
         public CreateSpotCharter(
             DateTime charterpartyDate, 
             CounterpartyId charterpartyId, 
@@ -31,11 +32,11 @@ namespace SpotCharterServices.Commands
 
         }
 
-        public DateTime CharterpartyDate { get; private set; }
-        public CounterpartyId CharterpartyId { get; private set; }
-        public string CharterpartyName { get; private set; }
-        public CargoQuantity MinimumQuantity { get; private set; }
-        public VesselId VesselId { get; private set; }
-        public string VesselName { get; private set; }
+        public DateTime CharterpartyDate { get; set; }
+        public CounterpartyId CharterpartyId { get; set; }
+        public string CharterpartyName { get; set; }
+        public CargoQuantity MinimumQuantity { get; set; }
+        public VesselId VesselId { get; set; }
+        public string VesselName { get; set; }
     }
 }

@@ -14,6 +14,6 @@ namespace BaseDomainObjects
         string EventName { get; }
         string Source { get; }        
         int Version { get; }
-
+        DateTime Timestamp { get; }
     }
 }

@@ -17,7 +17,9 @@ namespace EventSourcePostgresRepository
 
         private readonly string connectionString;
         private readonly string tableName;
-        private readonly Process process = Process.GetCurrentProcess();       
+        private readonly Process process = Process.GetCurrentProcess();
+        private readonly IEventDispatcher messageDispatcher;
+        private readonly string applicationName;
 
         public PostgresSQLEventSourceRepository(            
             string database,
@@ -25,18 +27,23 @@ namespace EventSourcePostgresRepository
             string password,             
             string tableName,            
             string applicationName = "cqrs+es client",
-            string host = "localhost",
-            int port = 5432)
+            string host = "localhost",            
+            int port = 5432,
+            IEventDispatcher dispatcher = null)
         {
             this.connectionString = $"Host={host};Port={port};Username={login};Password={password};Application name={applicationName};Database={database}";
             this.tableName = tableName;
-
+            this.applicationName = applicationName;
+            this.messageDispatcher = dispatcher;
         }
 
         public abstract TAggregate Get(TIdentity id); // { throw new NotImplementedException(); }
 
         void IEventSourceCommandRepository<TAggregate, TIdentity>.Save(TAggregate instance)
         {
+
+            var eventsToDispatch = new List<DispatchEvent>();
+
             var keyValues = this.parseKeyValueFields(instance.Id);
             var commandText = $@"
 INSERT INTO {this.tableName} 
@@ -53,7 +60,8 @@ VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, @ev
                     {                        
 
                         foreach (var @event in instance.Events)
-                        {                            
+                        {
+                            var jsonPayload = JsonConvert.SerializeObject(@event);
                             var cmd = connection.CreateCommand();
                             cmd.Transaction = transaction;
 
@@ -84,7 +92,7 @@ VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, @ev
                             {
                                 ParameterName = "@payload",
                                 NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Json,
-                                NpgsqlValue = JsonConvert.SerializeObject(@event)
+                                NpgsqlValue = jsonPayload,
                             });
 
                             cmd.Parameters.Add(new NpgsqlParameter()
@@ -126,9 +134,32 @@ VALUES (@id, @aggregate_type, @date_time, @payload, @payload_type, @version, @ev
                             }
 
                             cmd.ExecuteNonQuery();
+                            eventsToDispatch.Add(new DispatchEvent
+                            {
+                                EventName = @event.EventName,
+                                Id = @event.Id,
+                                Source = @event.Source,
+                                Version = @event.Version,
+                                Timestamp = @event.Timestamp,
+                                Payload = jsonPayload
+                            });
+
                         }                        
 
                         transaction.Commit();
+
+                        if (eventsToDispatch.Count > 0 && this.messageDispatcher != null)
+                        {
+                            Task.Factory.StartNew(() =>
+                            {
+                                foreach (var @event in eventsToDispatch)
+                                {
+                                    this.messageDispatcher.Publish(@event);
+                                    this.CommitDispatchedEvent(@event.Id);
+                                }
+                            }); 
+                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -198,10 +229,12 @@ ORDER BY version, date_time
             {
                 var commitEventCommand = connection.CreateCommand();
                 commitEventCommand.Connection = connection;
-                commitEventCommand.CommandText = "select public.\"CommitDispatchedEvent\"(@id)";
+                commitEventCommand.CommandText = "select public.\"CommitDispatchedEvent\"(@id, @host, @process)";
                 commitEventCommand.CommandType = System.Data.CommandType.Text;
                 
                 commitEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@id", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Uuid, Value = eventId });
+                commitEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@host", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.process.MachineName });
+                commitEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@process", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.applicationName });
 
                 connection.Open();                
                 commitEventCommand.ExecuteNonQuery();
@@ -222,7 +255,7 @@ ORDER BY version, date_time
                 getEventCommand.CommandType = System.Data.CommandType.Text;
 
                 getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@host", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.process.MachineName });
-                getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@process", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.process.ProcessName });
+                getEventCommand.Parameters.Add(new NpgsqlParameter() { ParameterName = "@process", NpgsqlDbType = NpgsqlTypes.NpgsqlDbType.Varchar, Value = this.applicationName });
 
                 connection.Open();
                 var reader = getEventCommand.ExecuteReader();

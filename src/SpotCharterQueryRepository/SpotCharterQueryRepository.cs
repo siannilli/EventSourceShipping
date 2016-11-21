@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SharedShippingDomainsObjects.ValueObjects;
-using SpotCharterDomain;
+
 using MongoDB.Bson;
 using MongoDB.Driver;
+using System;
+using System.Linq.Expressions;
+
+using SpotCharterViewModel;
 
 namespace Shipping.Repositories
 {
-    public class SpotCharterQueryRepository: ISpotCharterUpdateViewRepository
+    public class SpotCharterQueryRepository: ISpotCharterUpdateViewRepository, ISpotCharterQueryRepository
     {
         private const string spotChartersCollectionName = "spot.charters";
         private readonly string connectionString;
@@ -34,20 +38,23 @@ namespace Shipping.Repositories
             };
         }
 
-        public SpotCharter GetById(SpotCharterId id)
+        private IMongoCollection<SpotCharterView> GetSpotCollection()
         {
             var client = new MongoClient(this.clientSettings);            
-            var collection = client.GetDatabase(this.database).GetCollection<SpotCharter>(SpotCharterQueryRepository.spotChartersCollectionName);
-            var filter = Builders<SpotCharter>.Filter.Eq("_id", id);
+            return client.GetDatabase(this.database).GetCollection<SpotCharterView>(SpotCharterQueryRepository.spotChartersCollectionName);
+        }
 
+        public SpotCharterView GetById(SpotCharterId id)
+        {
+            var filter = Builders<SpotCharterView>.Filter.Eq("_id", id);
+            var collection = GetSpotCollection();
             return collection.Find(filter).FirstOrDefault();
         }
 
-        public void Save(SpotCharter document)
+        public void Save(SpotCharterView document)
         {
-            var client = new MongoClient(this.clientSettings);            
-            var collection = client.GetDatabase(this.database).GetCollection<SpotCharter>(SpotCharterQueryRepository.spotChartersCollectionName);
-            var filter = Builders<SpotCharter>.Filter.Eq("_id", document.Id);
+            var collection = GetSpotCollection();
+            var filter = Builders<SpotCharterView>.Filter.Eq("_id", document.Id);
         
             var existing = collection.Find(filter).FirstOrDefault();
 
@@ -60,14 +67,13 @@ namespace Shipping.Repositories
 
         public void Remove(SpotCharterId id)
         {
-            var client = new MongoClient(this.clientSettings);            
-            var collection = client.GetDatabase(this.database).GetCollection<SpotCharter>(SpotCharterQueryRepository.spotChartersCollectionName);
-            var filter = Builders<SpotCharter>.Filter.Eq("_id", id);
+            var collection = GetSpotCollection();
+            var filter = Builders<SpotCharterView>.Filter.Eq("_id", id);
 
             collection.DeleteOne(filter);
 
         }
-        public void Remove(SpotCharter document)
+        public void Remove(SpotCharterView document)
         {
             Remove(document.Id);
         }
@@ -75,6 +81,21 @@ namespace Shipping.Repositories
         private MongoClient GetClientConnection()
         {
             return new MongoClient(this.clientSettings);
+        }
+
+        public IQueryable<SpotCharterView> Find(Expression<Func<SpotCharterView, bool>> predicate)
+        {
+            return Find().Where(predicate);
+        }
+
+        public IQueryable<SpotCharterView> Find()
+        {
+            return GetSpotCollection().AsQueryable();
+        }
+
+        public SpotCharterView GetBySpotCharterId(SpotCharterId spotId)
+        {
+            return GetById(spotId);
         }
     }
 }

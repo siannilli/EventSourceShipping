@@ -48,7 +48,7 @@ namespace SpotRepositoryTests
         {
             var spot = GetSpotCharter();
             ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
-                ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
+                ("SpotCharters", "spot_user", "spot_user", "SpotRepositoryEvent", host: "sql-db");
 
             repository.Save(spot);
 
@@ -66,6 +66,32 @@ namespace SpotRepositoryTests
             Assert.NotEqual(spot1.Version, 4);
 
         }
+
+
+        [TestMethod()]
+        public void CreateAndRetrieveAndPublishMessages()
+        {
+            var spot = GetSpotCharter();
+            ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
+                (database: "SpotCharters", login: "spot_user", password: "spot_user", applicationName: "SpotRepositoryEvent", host: "sql-db", messageBroker: new RabbitMQEventDispatcher.RabbitMQEventDispatcher("message-broker", "/test", username: "siannilli", password:"siannilli", exchangeName: "chartering.spot"));
+
+            repository.Save(spot);
+
+            var spot1 = repository.Get(spot.Id);
+
+            Assert.NotNull(spot1);
+            Assert.Equal(spot.Id, spot1.Id);
+            Assert.Equal(spot.CharterpartyId, spot1.CharterpartyId);
+            Assert.Equal(spot.CharterpartyName, spot1.CharterpartyName);
+            Assert.Equal(spot.VesselId, spot1.VesselId);
+            Assert.Equal(spot.VesselName, spot1.VesselName);
+            Assert.NotEqual(spot.Version, spot1.Version);
+
+            Assert.Equal(spot.Version, 0);
+            Assert.NotEqual(spot1.Version, 4);
+
+        }
+
 
         [TestMethod]
         public void CreateAndUpdate()
@@ -103,7 +129,6 @@ namespace SpotRepositoryTests
             Assert.NotSame(@event, null);              
 
         }
-
 
         [TestMethod]
         public void GetMessageAndCommitDispatch()

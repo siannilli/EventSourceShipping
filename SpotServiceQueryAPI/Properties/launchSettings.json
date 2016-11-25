@@ -11,15 +11,15 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/values",
+      "launchUrl": "api/spot",
       "environmentVariables": {
+        "ASPNETCORE_URLS": "https://*:5001",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "SpotServiceQueryAPI": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "http://localhost:5000/api/spot/recentlyadded",
+      "launchUrl": "http://localhost:5001/api/spot/recentlyadded",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -31,7 +31,7 @@ namespace Tests
             return new SpotCharterView
             {
                 Id = spotId,
-                Charterparty = counterparty1,
+                CharterpartyName = counterparty1,
                 CharterpartyId = cpId1,
                 VesselName = vesselName, 
                 Laycan = laycan,
@@ -46,7 +46,7 @@ namespace Tests
         [Fact]
         public void GetFirstDocument() 
         {
-            var repo = new SpotCharterQueryRepository(host: "doc-db", database: "spotService", username: "spotService", password: "spotService");            
+            var repo = new SpotCharterQueryRepository(host: "localdev", database: "spotService" , username: "spotService", password: "spotService");            
 
             var doc = repo.Find().Take(1).FirstOrDefault();
 
@@ -57,7 +57,7 @@ namespace Tests
         [Fact]
         public void InsertAndRetrieve()
         {
-            var repo = new SpotCharterQueryRepository(host: "doc-db", database: "spotService", username: "spotService", password: "spotService");
+            var repo = new SpotCharterQueryRepository(host: "localdev", database: "spotService", username: "spotService", password: "spotService");
 
             var doc = GetSpotCharter();
             repo.Save(doc);
@@ -83,7 +83,7 @@ namespace Tests
         [Fact]
         public void DeleteDocument()
         {
-            var repo = new SpotCharterQueryRepository(host: "doc-db", database: "spotService", username: "spotService", password: "spotService");
+            var repo = new SpotCharterQueryRepository(host: "localdev", database: "spotService", username: "spotService", password: "spotService");
             var spot = GetSpotCharter();
 
             repo.Save(spot);

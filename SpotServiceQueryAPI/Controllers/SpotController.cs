@@ -48,7 +48,7 @@ namespace SpotServiceQueryAPI.Controllers
         {
             try
             {                
-                return this.Ok(this.repository.Find().Take(1));
+                return this.Ok(this.repository.Find().OrderByDescending(s => s.LastUpdate).Take(5));
             }
             catch (Exception ex)
             {

@@ -19,9 +19,9 @@ namespace SpotCharterViewUpdaterHost
         public static void Main(string[] args)
         {
             //TODO: read from configuration / env variables configuration parameters
-            var workerProcess = new WorkerProcess(new RabbitMQEventConsumer(host: "message-broker", vhost: "/test", username: "siannilli", password: "siannilli"), 
-                new SpotCharterEventSourceRepository("SpotCharters", "spot_user", "spot_user", host: "sql-db"), 
-                new SpotCharterQueryRepository("doc-db", "spotService", username: "spotService", password: "spotService"));
+            var workerProcess = new WorkerProcess(new RabbitMQEventConsumer(host: "localdev", vhost: "/test", username: "siannilli", password: "siannilli"), 
+                new SpotCharterEventSourceRepository("SpotCharters", "spot_user", "spot_user", host: "localdev"), 
+                new SpotCharterQueryRepository("localdev", "spotService", username: "spotService", password: "spotService"));
 
             Task.WaitAll(Task.Factory.StartNew(() =>
             {

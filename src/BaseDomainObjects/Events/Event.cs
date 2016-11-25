@@ -3,42 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BaseDomainObjects.Entities;
 
 namespace BaseDomainObjects.Events
 {
     public class Event<TAggregateIdentity> : Entities.Entity<Guid>, IEvent<TAggregateIdentity>
     {
 
-        public Event(TAggregateIdentity aggregateId)
-            : this(aggregateId, Guid.NewGuid())
+        public Event(TAggregateIdentity aggregateId, Login login)
+            : this(aggregateId, login, Guid.NewGuid())
         {
 
         }
 
-        public Event(TAggregateIdentity aggregateId, int version)
-            : this(aggregateId, Guid.NewGuid(), version)
+        public Event(TAggregateIdentity aggregateId, Login login, int version)
+            : this(aggregateId, login, Guid.NewGuid(), version)
         {
 
         }
 
-        public Event(TAggregateIdentity aggregateId, Guid eventId)
-            : this(aggregateId, eventId, 1)
-        {
-
-        }
-
-        public Event(TAggregateIdentity aggregateId, Guid eventId, int version)
-            : this(aggregateId, eventId, version, null)
-        {
-
-        }
-
-        public Event(TAggregateIdentity aggregateId, Guid eventId, int version, string source)
+        public Event(TAggregateIdentity aggregateId, Login login, Guid eventId, int version = 1, string source = null)
             : base(eventId)
         {
             this.AggregateId = aggregateId;
             this.Version = version;
             this.Source = source;
+            this.Login = login;
 
             this.Timestamp = DateTime.UtcNow;
         }
@@ -65,6 +55,11 @@ namespace BaseDomainObjects.Events
         }
 
         public DateTime Timestamp
+        {
+            get; private set;
+        }
+
+        public Login Login
         {
             get; private set;
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BaseDomainObjects;
+using BaseDomainObjects.Entities;
 using BaseDomainObjects.Events;
 using SharedShippingDomainsObjects.Entities;
 using SharedShippingDomainsObjects.ValueObjects;
@@ -12,16 +12,14 @@ namespace SpotCharterDomain.Events
 {
     public class SpotCharterCreated : Event<SpotCharterId>
     {
-        public SpotCharterCreated(SpotCharterId spotId,
-            int version,
-                        
+        public SpotCharterCreated(SpotCharterId spotId, Login login,                        
             DateTime charterpartyDate,
             CounterpartyId charterpartyId,
             string charterpartyCurrentName,
             VesselId vesselId,
             string vesselCurrentName, 
             CargoQuantity minimumQuantity) 
-            : base(spotId, version)
+            : base(spotId, login)
         {
             this.CharterpartyDate = charterpartyDate;
             this.CounterpartyId = charterpartyId;

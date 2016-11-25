@@ -8,13 +8,16 @@ using SharedShippingDomainsObjects.ValueObjects;
 
 using SpotCharterDomain;
 using SpotCharterDomain.Events;
+using BaseDomainObjects.Entities;
 
-namespace SpotDomainTests
+namespace SpotCharterDomainObjectTests
 {
 
     using TestMethodAttribute = FactAttribute;
     public class AggregateTests
     {
+
+        Login login = new Login("stefano");
         SpotCharterId spotId = new SpotCharterId(Guid.NewGuid());
 
         CounterpartyId cpId1 = new CounterpartyId(Guid.NewGuid());
@@ -33,12 +36,21 @@ namespace SpotDomainTests
 
         private SpotCharterDomain.SpotCharter GetSpotCharter()
         {
-            var spot = new SpotCharterDomain.SpotCharter(DateTime.Now, cpId1, counterparty1, vesselId, vesselName, minimumQuantityStart);
+            var spot = new SpotCharterDomain.SpotCharter(new SpotCharterDomain.Commands.CreateSpotCharter()
+            {
+                Login = login,
+                CharterpartyDate = DateTime.Now,
+                CharterpartyId = cpId1,
+                CharterpartyName = counterparty1,
+                VesselId = vesselId,
+                VesselName = vesselName,
+                MinimumQuantity = minimumQuantityStart
+            });
 
-            spot.ChangeLaycan(laycan.From, laycan.To);
-            spot.ChangeDemurrageRate(demurrageRate.LoadHoursLaytime, demurrageRate.DischargeHoursLaytime, demurrageRate.TotalHoursLaytime, demurrageRate.Price, demurrageRate.TimeUnit);
+            spot.ChangeLaycan(new SpotCharterDomain.Commands.ChangeLaycan() { Login = login, Laycan = laycan });
+            spot.ChangeDemurrageRate(new SpotCharterDomain.Commands.ChangeDemurrageRate() { Login = login, DemurrageRate = demurrageRate });
 
-            spot.ChangeCharterparty(cpId2, counterparty2);
+            spot.ChangeCharterparty(new SpotCharterDomain.Commands.ChangeCharterparty() { Login = login, CharterpartyId = cpId2, CharterpartyName = counterparty2 });
 
             return spot;
 
@@ -63,10 +75,10 @@ namespace SpotDomainTests
         {
             var eventStream = new List<IEvent<SpotCharterId>>()
         {
-            new SpotCharterCreated( spotId, 1, DateTime.Now, cpId1, counterparty1, vesselId, vesselName, minimumQuantityStart),
-            new LaycanChanged(spotId, 2, laycan ),
-            new DemurrageRateChanged(spotId, 3, demurrageRate),
-            new CharterpartyChanged(spotId,  4, cpId2, counterparty2),
+            new SpotCharterCreated(spotId, login, DateTime.Now, cpId1, counterparty1, vesselId, vesselName, minimumQuantityStart),
+            new LaycanChanged(spotId, login, 2, laycan ),
+            new DemurrageRateChanged(spotId, login, 3, demurrageRate),
+            new CharterpartyChanged(spotId, login, 4, cpId2, counterparty2),
         };
 
             var spot = new SpotCharterDomain.SpotCharter(eventStream);

@@ -8,7 +8,11 @@ namespace BaseDomainObjects
 {
     public interface ICommand
     {
-        Guid Id { get; }                       
+        Guid Id { get; }                
+
+        int Version { get; set; }
+
+        Entities.Login Login { get; set; }
 
     }
 }

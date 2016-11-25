@@ -13,6 +13,7 @@ namespace BaseDomainObjects.Commands
         public Command()
         {
             this.Id = Guid.NewGuid();
+            this.Version = 1;
         }
         
         public Command(Guid id)
@@ -21,7 +22,13 @@ namespace BaseDomainObjects.Commands
         }     
 
         public Guid Id{get; private set;}
-                
+
+        public int Version
+        {
+            get;
+            set;
+        }
+
         Guid ICommand.Id
         {
             get
@@ -29,6 +36,8 @@ namespace BaseDomainObjects.Commands
                 return this.Id;
             }
         }
+
+        public Entities.Login Login { get; set; }
 
     }
 }

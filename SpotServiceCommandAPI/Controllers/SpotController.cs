@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using BaseDomainObjects;
 using SharedShippingDomainsObjects.ValueObjects;
 using SpotCharterDomain;
-using SpotCharterServices;
-using SpotCharterServices.Commands;
+using SpotCharterDomain;
+using SpotCharterDomain.Commands;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -47,8 +47,17 @@ namespace SpotHandlerCommandAPI.Controllers
         {
             if (createCommand == null)
                 return BadRequest(new ArgumentNullException("CreateCommand"));
-            
-            return ProcessCommand(createCharterHandler, createCommand);            
+
+            if (createCommand.SpotCharterId != null)
+                return BadRequest(new ArgumentException("Invalid spot charter id in a new request-"));
+
+            createCommand.SpotCharterId = new SpotCharterId(Guid.NewGuid());
+
+            var result = ProcessCommand(createCharterHandler, createCommand);
+            if (result is OkResult)
+                return Created("/api/view", createCommand.SpotCharterId);
+
+            return result;
         }
 
         // PUT api/values/5
@@ -91,6 +100,10 @@ namespace SpotHandlerCommandAPI.Controllers
         {
             try
             {
+                if (!Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").Equals("Development") && !this.HttpContext.User.Identity.IsAuthenticated)
+                    return Unauthorized();
+                
+                command.Login = new BaseDomainObjects.Entities.Login(this.HttpContext.User.Identity.Name ?? "devlogin");
                 commandHandler.Handle(command);
                 return Ok();
 

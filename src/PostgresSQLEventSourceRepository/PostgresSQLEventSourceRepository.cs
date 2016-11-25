@@ -22,10 +22,10 @@ namespace EventSourcePostgresRepository
         private readonly string applicationName;
 
         public PostgresSQLEventSourceRepository(            
-            string database,
-            string login, 
-            string password,             
-            string tableName,            
+            string database = null,
+            string login = null, 
+            string password = null,             
+            string tableName = null,            
             string applicationName = "cqrs+es client",
             string host = "localhost",            
             int port = 5432,
@@ -39,7 +39,7 @@ namespace EventSourcePostgresRepository
 
         public abstract TAggregate Get(TIdentity id); // { throw new NotImplementedException(); }
 
-        void IEventSourceCommandRepository<TAggregate, TIdentity>.Save(TAggregate instance)
+        public void Save(TAggregate instance)
         {
 
             var eventsToDispatch = new List<DispatchEvent>();

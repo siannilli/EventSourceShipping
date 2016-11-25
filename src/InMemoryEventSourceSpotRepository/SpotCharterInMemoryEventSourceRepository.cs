@@ -11,12 +11,17 @@ using SharedShippingDomainsObjects.ValueObjects;
 using SpotCharterDomain;
 
 using Newtonsoft.Json;
+using EventDispatcherBase;
 
 namespace SpotCharterInMemoryEventSourceRepository
 {    
 
-    public class SpotCharterInMemoryEventSourceRepository: ISpotCharterCommandRepository    
+    public class SpotCharterInMemoryCommandRepository: ISpotCharterCommandRepository    
     {
+
+        public delegate void NotifyEvent(IEvent<SpotCharterId> @event);
+        public event NotifyEvent OnEventSave;
+
         class EventInstance
         {
             public Type Type { get; set; }
@@ -24,6 +29,7 @@ namespace SpotCharterInMemoryEventSourceRepository
         }
 
         private readonly IDictionary<SpotCharterId, IEnumerable<EventInstance>> repository = new Dictionary<SpotCharterId, IEnumerable<EventInstance>>();
+        private readonly IEventDispatcher dispatcher;
 
         SpotCharter IEventSourceCommandRepository<SpotCharter, SpotCharterId>.Get(SpotCharterId id)
         {
@@ -40,6 +46,11 @@ namespace SpotCharterInMemoryEventSourceRepository
             return new SpotCharter(eventStream.Select(json => JsonConvert.DeserializeObject(json.JsonString, json.Type, settings) as IEvent<SpotCharterId>).ToArray());
         }
 
+        public SpotCharterInMemoryCommandRepository(EventDispatcherBase.IEventDispatcher dispatcher = null)
+        {
+            this.dispatcher = dispatcher;
+        }
+
         void IEventSourceCommandRepository<SpotCharter, SpotCharterId>.Save(SpotCharter instance)
         {
             SpotCharterId id = instance.Id;
@@ -53,6 +64,13 @@ namespace SpotCharterInMemoryEventSourceRepository
             }
 
             this.repository[id] = eventStream;  
+            if (this.dispatcher != null)
+            {
+                foreach (var @event in spotEventsInterface.Events)
+                {
+                    this.dispatcher.Publish(new DispatchEvent { EventName = @event.EventName, Source = @event.Source, Timestamp = @event.Timestamp, Version = @event.Version, Payload = JsonConvert.SerializeObject(@event) } );
+                }
+            }
         }
     }
 }

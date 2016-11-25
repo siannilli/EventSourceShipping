@@ -14,12 +14,15 @@ using BaseDomainObjects.Commands;
 using Shipping.Repositories;
 using EventDispatcherBase;
 using RabbitMQEventDispatcher;
-using SpotCharterServices.Commands;
+using SpotCharterDomain.Commands;
 
 namespace SpotServiceCommandAPI
 {
     public class Startup
     {
+        IEventDispatcher messageBroker = null;
+        ISpotCharterCommandRepository repository = null;
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -35,6 +38,38 @@ namespace SpotServiceCommandAPI
 
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
+
+
+            if (env.IsDevelopment())
+            {
+                messageBroker = new SpotCharterInMemoryEventSourceRepository.InProcessEventDispatcher();
+                repository = new SpotCharterInMemoryEventSourceRepository.SpotCharterInMemoryCommandRepository(messageBroker);
+            }
+            else
+            {
+                // configuration settings for db and message broker
+                var databaseConfig = Configuration.GetSection("EventSourceDatabase");
+                var messageBrokerConfig = Configuration.GetSection("MessageBroker");
+
+                messageBroker = new RabbitMQEventDispatcher.RabbitMQEventDispatcher(
+                        host: messageBrokerConfig["host"],
+                        vhost: messageBrokerConfig["vhost"],
+                        port: int.Parse(messageBrokerConfig["port"]),
+                        username: messageBrokerConfig["username"],
+                        password: messageBrokerConfig["password"],
+                        exchangeName: messageBrokerConfig["exchangeName"]);
+
+                repository = new SpotCharterEventSourceRepository(
+                    database: databaseConfig["database"],
+                    login: databaseConfig["login"],
+                    password: databaseConfig["password"],
+                    applicationName: databaseConfig["applicationName"],
+                    host: databaseConfig["host"],
+                    port: int.Parse(databaseConfig["port"]),
+                    messageBroker: messageBroker
+                    );
+            }
+
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -45,35 +80,17 @@ namespace SpotServiceCommandAPI
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
 
-            // configuration settings for db and message broker
-            var databaseConfig = Configuration.GetSection("EventSourceDatabase");
-            var messageBroker = Configuration.GetSection("MessageBroker");
-
             // defines service instance for command handlers and inject repository and message broker instances
-            var spotService = new SpotCharterServices.SpotCharterCommandHandler(new SpotCharterEventSourceRepository(
-                database: databaseConfig["database"],
-                login: databaseConfig["login"],
-                password: databaseConfig["password"],
-                applicationName: databaseConfig["applicationName"],
-                host: databaseConfig["host"],
-                port: int.Parse(databaseConfig["port"]),
-                messageBroker: new RabbitMQEventDispatcher.RabbitMQEventDispatcher(
-                    host: messageBroker["host"], 
-                    vhost: messageBroker["vhost"],
-                    port: int.Parse(messageBroker["port"]), 
-                    username: messageBroker["username"], 
-                    password: messageBroker["password"],
-                    exchangeName: messageBroker["exchangeName"])                 
-                ));
+            var spotService = new SpotCharterDomain.SpotCharterCommandHandler(repository);
 
             // define singleton services for command handlers (all pointing to the same implementation instance)
-            services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.CreateSpotCharter>>(spotService);
-            services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeVessel>>(spotService);
-            services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeCharterparty>>(spotService);
-            services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeBillOfLading>>(spotService);
-            services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeDemurrageRate>>(spotService);
-            services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeLaycan>>(spotService);
-            services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangePortfolio>>(spotService);
+            services.AddSingleton<ICommandHandler<SpotCharterDomain.Commands.CreateSpotCharter>>(spotService);
+            services.AddSingleton<ICommandHandler<SpotCharterDomain.Commands.ChangeVessel>>(spotService);
+            services.AddSingleton<ICommandHandler<SpotCharterDomain.Commands.ChangeCharterparty>>(spotService);
+            services.AddSingleton<ICommandHandler<SpotCharterDomain.Commands.ChangeBillOfLading>>(spotService);
+            services.AddSingleton<ICommandHandler<SpotCharterDomain.Commands.ChangeDemurrageRate>>(spotService);
+            services.AddSingleton<ICommandHandler<SpotCharterDomain.Commands.ChangeLaycan>>(spotService);
+            services.AddSingleton<ICommandHandler<SpotCharterDomain.Commands.ChangePortfolio>>(spotService);
             // services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeFreightRate>>(spotService);
 
             services.AddMvc();
@@ -86,7 +103,6 @@ namespace SpotServiceCommandAPI
             loggerFactory.AddDebug();
 
             app.UseApplicationInsightsRequestTelemetry();
-
             app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseMvc();

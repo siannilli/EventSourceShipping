@@ -60,6 +60,9 @@ namespace BaseDomainObjects.Aggregates
 
         protected void UpdateAggregate(IEvent<TIdentity> @event)
         {
+            if (@event.Login == null)
+                throw new InvalidCommandException("Missing login information in event");
+
             if (@event.Version <= this.version)
                 throw new InvalidAggregateVersionException();
 

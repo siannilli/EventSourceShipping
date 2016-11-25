@@ -6,13 +6,23 @@ using SharedShippingDomainsObjects.ValueObjects;
 using Shipping.Repositories;
 using EventDispatcherBase;
 
-namespace SpotRepositoryTests
+namespace PostgresSQLRepositoryTests
 {
     using TestMethodAttribute = FactAttribute;
 
     public class PostgresSQLRepositoryTests 
     {
 
+        dynamic dbConfig = new
+        {
+            host = Environment.GetEnvironmentVariable("SQLDB_HOST") ?? "sql-localdev",
+            port = int.Parse(Environment.GetEnvironmentVariable("SQLDB_PORT") ?? "5432"),
+            database = Environment.GetEnvironmentVariable("SQLDB_DATABASE") ?? "spotService",
+            username = Environment.GetEnvironmentVariable("SQLDB_AUTH_USERNAME") ?? "spotService",
+            password = Environment.GetEnvironmentVariable("SQLDB_AUTH_PASSWORD") ?? "spotService"
+        };
+
+        BaseDomainObjects.Entities.Login login = new BaseDomainObjects.Entities.Login("stefano");
         SpotCharterId spotId = new SpotCharterId(Guid.NewGuid());
         CounterpartyId cpId1 = new CounterpartyId(Guid.NewGuid());
         CounterpartyId cpId2 = new CounterpartyId(Guid.NewGuid());
@@ -28,27 +38,35 @@ namespace SpotRepositoryTests
         DateRange laycan = new DateRange(DateTime.Now.AddDays(3).Date, DateTime.Now.Date);
         DemurrageRate demurrageRate = new DemurrageRate(0, 0, 72, new CostAmount(new Currency("USD", "US DOLLAR", "$"), 25000), SharedShippingDomainsObjects.Enums.DemurrageRateTimeUnit.Day);
 
+        ISpotCharterCommandRepository repository;
+        IEventDispatcherRepository eventsDispatchRepository;
+
+        public PostgresSQLRepositoryTests()
+        {
+            SpotCharterEventSourceRepository concreteRepository = new SpotCharterEventSourceRepository
+                    ("SpotCharters", "spot_user", "spot_user", applicationName: "SpotRepositoryEventTest", host: dbConfig.host, port: dbConfig.port );
+            repository = concreteRepository;
+            eventsDispatchRepository = concreteRepository;
+        }
+
         private SpotCharterDomain.SpotCharter GetSpotCharter()
         {
-            var spot = new SpotCharterDomain.SpotCharter(DateTime.Now, cpId1, counterparty1, vesselId, vesselName, minimumQuantityStart);
+            var spot = new SpotCharterDomain.SpotCharter(new SpotCharterDomain.Commands.CreateSpotCharter() { CharterpartyDate = DateTime.Now, CharterpartyId = cpId1, CharterpartyName = counterparty1, VesselId = vesselId, VesselName = vesselName, MinimumQuantity = minimumQuantityStart, Login = login });
 
-            spot.ChangeLaycan(laycan.From, laycan.To);
-            spot.ChangeDemurrageRate(demurrageRate.LoadHoursLaytime, demurrageRate.DischargeHoursLaytime, demurrageRate.TotalHoursLaytime, demurrageRate.Price, demurrageRate.TimeUnit);
+            spot.ChangeLaycan( new SpotCharterDomain.Commands.ChangeLaycan() { Login = login, Laycan = laycan });
+            spot.ChangeDemurrageRate( new SpotCharterDomain.Commands.ChangeDemurrageRate() { Login = login, DemurrageRate = demurrageRate });
 
-            spot.ChangeCharterparty(cpId2, counterparty2);
+            spot.ChangeCharterparty( new SpotCharterDomain.Commands.ChangeCharterparty() { Login = login, CharterpartyId = cpId2, CharterpartyName = counterparty2 });
 
             return spot;
 
         }
 
 
-
         [TestMethod()]
         public void CreateAndRetrieve()
         {
             var spot = GetSpotCharter();
-            ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
-                ("SpotCharters", "spot_user", "spot_user", "SpotRepositoryEvent", host: "sql-db");
 
             repository.Save(spot);
 
@@ -72,9 +90,6 @@ namespace SpotRepositoryTests
         public void CreateAndRetrieveAndPublishMessages()
         {
             var spot = GetSpotCharter();
-            ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
-                (database: "SpotCharters", login: "spot_user", password: "spot_user", applicationName: "SpotRepositoryTests", host: "sql-db", messageBroker: new RabbitMQEventDispatcher.RabbitMQEventDispatcher("message-broker", "/test", username: "siannilli", password:"siannilli", exchangeName: "chartering.spot"));
-
             repository.Save(spot);
 
             var spot1 = repository.Get(spot.Id);
@@ -97,13 +112,11 @@ namespace SpotRepositoryTests
         public void CreateAndUpdate()
         {
             var spot = GetSpotCharter();
-            ISpotCharterCommandRepository repository = new SpotCharterEventSourceRepository
-                ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
 
             repository.Save(spot);
 
             var spotV1 = repository.Get(spot.Id);
-            spotV1.ChangeVessel(new VesselId(Guid.NewGuid()), "Pinta");
+            spotV1.ChangeVessel( new SpotCharterDomain.Commands.ChangeVessel() { Login = login, VesselId = new VesselId(Guid.NewGuid()), VesselName = "Pinta" });
 
             repository.Save(spotV1);
 
@@ -115,14 +128,12 @@ namespace SpotRepositoryTests
         [TestMethod]
         public void GetMessageToDispatch()
         {
-            IEventDispatcherRepository repository = new SpotCharterEventSourceRepository
-                ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
 
 
             Guid eventId = Guid.Empty;
             DispatchEvent @event = null;
 
-            var result = repository.GetNextEventToDispatch(out eventId, out @event);
+            var result = eventsDispatchRepository.GetNextEventToDispatch(out eventId, out @event);
 
             Assert.True(result);
             Assert.NotSame(eventId, Guid.Empty);
@@ -134,17 +145,13 @@ namespace SpotRepositoryTests
         public void GetMessageAndCommitDispatch()
         {
 
-            IEventDispatcherRepository repository = new SpotCharterEventSourceRepository
-                ("SpotCharters", "spot_user", "spot_user", "spot_events", host: "sql-db");
-
-
             Guid eventId = Guid.Empty;
             DispatchEvent payload = null;
 
-            var result = repository.GetNextEventToDispatch(out eventId, out payload);
+            var result = eventsDispatchRepository.GetNextEventToDispatch(out eventId, out payload);
             Assert.True(result);
 
-            repository.CommitDispatchedEvent(eventId);
+            eventsDispatchRepository.CommitDispatchedEvent(eventId);
             Assert.True(true);
 
         }

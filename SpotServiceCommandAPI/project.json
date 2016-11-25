@@ -21,7 +21,8 @@
     "SpotCharterDomain": "1.0.0-*",
     "SharedShippingDomainObjects": "1.0.0-*",
     "EventDispatcherBase": "1.0.0-*",
-    "SpotCharterService": "1.0.0-*"
+    "SpotCharterService": "1.0.0-*",
+    "InMemoryEventSourceSpotRepository": "1.0.0-*"
   },
 
   "tools": {

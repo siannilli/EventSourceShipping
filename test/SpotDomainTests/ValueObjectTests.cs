@@ -2,9 +2,9 @@
 using Xunit;
 using SharedShippingDomainsObjects.ValueObjects;
 
-namespace Tests
+namespace SpotCharterDomainObjectTests
 {
-    public class Tests
+    public class ValueObjectTests
     {
         [Fact]
         public void TestCargoQuantityEquality() 

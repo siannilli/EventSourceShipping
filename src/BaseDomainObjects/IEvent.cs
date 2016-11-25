@@ -15,5 +15,7 @@ namespace BaseDomainObjects
         string Source { get; }        
         int Version { get; }
         DateTime Timestamp { get; }
+        Entities.Login Login { get; }
+
     }
 }

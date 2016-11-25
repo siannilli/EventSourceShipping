@@ -10,11 +10,13 @@ using SharedShippingDomainsObjects.Entities;
 using SharedShippingDomainsObjects.Enums;
 
 using SpotCharterDomain.Events;
+using SpotCharterDomain.Commands;
 
 namespace SpotCharterDomain
 {
     public class SpotCharter : EventSourcedAggregate<SpotCharterId>
     {
+        #region Costructors
 
         private SpotCharter()
             : base(new SpotCharterId(Guid.Empty))
@@ -37,11 +39,10 @@ namespace SpotCharterDomain
             this.Id = id;
         }
 
-        public SpotCharter(DateTime charterpartyDate, CounterpartyId charterpartyId, string charterpartyName, VesselId vesselId, string vesselName,CargoQuantity minimumQuantity)
+        public SpotCharter(CreateSpotCharter command)
             : this()
-        {
-            
-            this.UpdateAggregate(new SpotCharterCreated(new SpotCharterId(Guid.NewGuid()), 1, charterpartyDate, charterpartyId, charterpartyName, vesselId, vesselName, minimumQuantity));                
+        {                           
+            this.UpdateAggregate(new SpotCharterCreated(command.SpotCharterId, command.Login, command.CharterpartyDate, command.CharterpartyId, command.CharterpartyName, command.VesselId, command.VesselName, command.MinimumQuantity));                
         }
 
         public SpotCharter(IEnumerable<IEvent<SpotCharterId>> events)
@@ -54,6 +55,8 @@ namespace SpotCharterDomain
             this.Id = firstEvent.AggregateId;
             this.ReplayEvents(events);
         }
+
+        #endregion
 
         public string Code { get; private set;}
         public DateTime? CharterpartyDate { get; private set; }
@@ -75,58 +78,44 @@ namespace SpotCharterDomain
         public DemurrageRate DemurrageRate { get; private set; }
 
         public PortfolioId PortfolioId { get; private set; }
+
         public string PortfolioDescription { get; private set; }
 
-        #region Aggregate Actions
 
-        public void ChangePortfolio(PortfolioId newPortfolio)
+        #region Aggregate Command handlers
+
+        public void ChangePortfolio(ChangePortfolio command)
         {
-            this.UpdateAggregate(new PortfolioChanged(this.Id,  this.Version + 1, newPortfolio));
+            UpdateAggregate(new PortfolioChanged(this.Id, command.Login,  command.Version + 1, command.PortfolioId, command.PortfolioName));
         }
 
-        public void ChangeDemurrageRate(double laytimeLoad, 
-            double laytimeDischarge, 
-            double laytimeTotal,
-            CostAmount priceUnit,
-            DemurrageRateTimeUnit interval)
+        public void ChangeDemurrageRate(ChangeDemurrageRate command)
         {
-            this.UpdateAggregate(new DemurrageRateChanged(this.Id, this.Version + 1 , new DemurrageRate(laytimeLoad, laytimeDischarge, laytimeTotal, priceUnit, interval)));
+            this.UpdateAggregate(new DemurrageRateChanged(this.Id, command.Login, command.Version + 1  , command.DemurrageRate));
         }
 
-        public void ChangeVessel(VesselId vesselId, string vesselName)
+        public void ChangeVessel(ChangeVessel command)
         {
-            this.UpdateAggregate(new VesselChanged(this.Id,  this.Version + 1, vesselId, vesselName));
+            this.UpdateAggregate(new VesselChanged(this.Id, command.Login,  command.Version + 1, command.VesselId, command.VesselName));
         }
 
-        public void ChangeCharterparty(CounterpartyId counterpartyId, string counterpartyName)
+        public void ChangeCharterparty(ChangeCharterparty command)
         {
-            this.UpdateAggregate(new CharterpartyChanged(this.Id, this.Version + 1, counterpartyId, counterpartyName));
+            this.UpdateAggregate(new CharterpartyChanged(this.Id, command.Login, command.Version + 1, command.CharterpartyId, command.CharterpartyName));
         }
 
-        public void ChangeBillOfLading(DateTime date, CargoQuantity quantity, string documentReference)
+        public void ChangeBillOfLading(ChangeBillOfLading command)
         {
-            this.UpdateAggregate(new BillOfLadingChanged(this.Id, this.Version + 1, date, quantity, documentReference));
+            this.UpdateAggregate(new BillOfLadingChanged(this.Id, command.Login, command.Version + 1, command.BillOfLading));
+        }
+        public void ChangeFreightRate(ChangeFreightRate command)
+        {
+            throw new NotImplementedException();
         }
 
-        public void  ChangeFreightRate(decimal flat, decimal worldScale, Enums.OverageType overageType, decimal overageValue)
+        public void ChangeLaycan(ChangeLaycan command)
         {
-            this.UpdateAggregate(new FreightRateChanged(this.Id, this.Version + 1,
-                new ValueObjects.FreightRate(flat, worldScale, new ValueObjects.Overage(overageType, overageValue))));
-        }
-
-        public void ChangeFreightRate(decimal lumpsum)
-        {
-            this.UpdateAggregate(new FreightRateChanged(this.Id, this.Version + 1, new ValueObjects.FreightRate(lumpsum)));
-        }
-
-        public void ChangeFreightRate(decimal price, string uom, Enums.OverageType overageType, decimal overageValue)
-        {
-            this.UpdateAggregate(new FreightRateChanged(this.Id, this.Version + 1, new ValueObjects.FreightRate(price, uom, new ValueObjects.Overage(overageType, overageValue))));
-        }
-
-        public void ChangeLaycan(DateTime from, DateTime to)
-        {
-            this.UpdateAggregate(new LaycanChanged(this.Id, this.Version + 1, new DateRange(from, to)));
+            this.UpdateAggregate(new LaycanChanged(this.Id, command.Login, command.Version + 1, command.Laycan));
         }
 
         #endregion
@@ -172,7 +161,7 @@ namespace SpotCharterDomain
 
         private void OnBillOfLadingChanged(BillOfLadingChanged @event)
         {
-            this.BillOfLading = new BillOfLading(@event.Date, @event.Quantity, @event.DocumentReference);
+            this.BillOfLading = @event.BillOfLading;
         }
 
 

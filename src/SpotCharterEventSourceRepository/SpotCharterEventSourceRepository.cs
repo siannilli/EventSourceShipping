@@ -17,8 +17,15 @@ namespace Shipping.Repositories
 {
     public class SpotCharterEventSourceRepository : PostgresSQLEventSourceRepository<SpotCharter, SpotCharterId>, ISpotCharterCommandRepository
     {
-        public SpotCharterEventSourceRepository(string database, string login, string password, string applicationName = "SpotCharterEventSourceRepository", string host = "localhost", int port = 5432, IEventDispatcher messageBroker = null) 
-            : base(database, login, password, "spot_events", applicationName, host, port, messageBroker)            
+        public SpotCharterEventSourceRepository(string database = null, string login = null, string password = null, string applicationName = "SpotCharterEventSourceRepository", string host = "localhost", int port = 5432, IEventDispatcher messageBroker = null) 
+            : base(database: database, 
+                  login: login, 
+                  password: password, 
+                  tableName:  "spot_events", 
+                  applicationName: applicationName, 
+                  host: host,
+                  port: port, 
+                  dispatcher : messageBroker)            
         {
 
         }

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 using BaseDomainObjects;
 using SpotCharterDomain;
-using SpotCharterServices.Commands;
+using SpotCharterDomain.Commands;
 
-namespace SpotCharterServices
+namespace SpotCharterDomain
 {
     public class SpotCharterCommandHandler :
         ICommandHandler<CreateSpotCharter>,
@@ -31,49 +31,49 @@ namespace SpotCharterServices
         void ICommandHandler<ChangeDemurrageRate>.Handle(ChangeDemurrageRate command)
         {
             var spot = this._repository.Get(command.SpotCharterId);
-            spot.ChangeDemurrageRate(command.LaytimeLoad, command.LaytimeDischarge, command.LaytimeTotal, command.Rate, command.TimeUnit);
+            spot.ChangeDemurrageRate(command);
             this._repository.Save(spot);
         }
 
         void ICommandHandler<ChangeVessel>.Handle(ChangeVessel command)
         {
             var spot = this._repository.Get(command.SpotCharterId);
-            spot.ChangeVessel(command.VesselId, command.Name);
+            spot.ChangeVessel(command);
             this._repository.Save(spot);
         }
 
         void ICommandHandler<ChangePortfolio>.Handle(ChangePortfolio command)
         {
             var spot = this._repository.Get(command.SpotCharterId);
-            spot.ChangePortfolio(command.PortfolioId);
+            spot.ChangePortfolio(command);
             this._repository.Save(spot);
         }
 
         void ICommandHandler<ChangeLaycan>.Handle(ChangeLaycan command)
         {
             var spot = this._repository.Get(command.SpotCharterId);
-            spot.ChangeLaycan(command.From, command.To);
+            spot.ChangeLaycan(command);
             this._repository.Save(spot);
         }
 
         void ICommandHandler<ChangeBillOfLading>.Handle(ChangeBillOfLading command)
         {
             var spot = this._repository.Get(command.SpotCharterId);
-            spot.ChangeBillOfLading(command.BLDate, command.BLQuantity, command.DocumentReference);
+            spot.ChangeBillOfLading(command);
             this._repository.Save(spot);
         }
 
         void ICommandHandler<ChangeCharterparty>.Handle(ChangeCharterparty command)
         {
             var spot = this._repository.Get(command.SpotCharterId);
-            spot.ChangeCharterparty(command.CharterpartyId, command.Name);
+            spot.ChangeCharterparty(command);
             this._repository.Save(spot);
 
         }
 
         void ICommandHandler<CreateSpotCharter>.Handle(CreateSpotCharter command)
         {
-            var spot = new SpotCharter(command.CharterpartyDate, command.CharterpartyId, command.CharterpartyName, command.VesselId, command.VesselName, command.MinimumQuantity);
+            var spot = new SpotCharter(command);
             this._repository.Save(spot);
         }
 

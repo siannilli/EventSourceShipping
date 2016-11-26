@@ -95,5 +95,25 @@ namespace Shipping.Repositories
         {
             return GetById(spotId);
         }
+
+        public IQueryable<SpotCharterView> ChartersMissingFreightRate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<SpotCharterView> ChartersMissingDemurrageTerms()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<SpotCharterView> ChartersMissingPortfolio()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IQueryable<SpotCharterView> ScheduledCharters()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

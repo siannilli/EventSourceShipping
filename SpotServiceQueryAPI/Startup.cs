@@ -36,11 +36,18 @@ namespace SpotServiceQueryAPI
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
 
-            queryRepository = new SpotCharterQueryRepository(
-                host: Configuration.GetSection("DocumentStore")["host"],
-                database: Configuration.GetSection("DocumentStore")["database"],
-                username: Configuration.GetSection("DocumentStore")["login"],
-                password: Configuration.GetSection("DocumentStore")["password"]);
+            if (env.IsDevelopment())
+            {
+                queryRepository = new SpotCharterInMemoryEventSourceRepository.SpotCharterInMemoryViewRepository(null, null);
+            }
+            else
+            {
+                queryRepository = new SpotCharterQueryRepository(
+                    host: Configuration.GetSection("DocumentStore")["host"],
+                    database: Configuration.GetSection("DocumentStore")["database"],
+                    username: Configuration.GetSection("DocumentStore")["login"],
+                    password: Configuration.GetSection("DocumentStore")["password"]);            
+            }
         }
 
         public IConfigurationRoot Configuration { get; }

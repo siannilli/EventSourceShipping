@@ -12,7 +12,7 @@ using SpotCharterDomain.Commands;
 
 namespace SpotServiceCommandAPI.Controllers
 {
-    [Route("api/command/spot", Name = "SpotCommand")]
+    [Route("api/spot")]
     public class SpotCommandController : Controller
     {
         private readonly ICommandHandler<CreateSpotCharter> createCharterHandler;

@@ -13,5 +13,10 @@ namespace SpotCharterViewModel
         IQueryable<SpotCharterView> Find();
         IQueryable<SpotCharterView> Find(Expression<Func<SpotCharterView, bool>> predicate);
         SpotCharterView GetBySpotCharterId(SpotCharterId spotId);
+
+        IQueryable<SpotCharterView> ChartersMissingFreightRate();
+        IQueryable<SpotCharterView> ChartersMissingDemurrageTerms();
+        IQueryable<SpotCharterView> ChartersMissingPortfolio();
+        IQueryable<SpotCharterView> ScheduledCharters();
     }
 }

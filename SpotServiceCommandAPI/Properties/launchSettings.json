@@ -15,10 +15,11 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "SpotServiceAPI": {
+    "SpotServiceCommandAPI": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SPOTSERVICEQUERYAPI_URL": "http://localhost:5001/api/spot"
       }
     }
   }

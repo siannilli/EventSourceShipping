@@ -19,7 +19,7 @@ namespace SpotServiceQueryAPI.Controllers
 
         public SpotQueryController( ISpotCharterQueryRepository repository)
         {
-            this.repository = repository;
+            this.repository = repository;            
         }
 
         // GET api/values/5
@@ -53,42 +53,54 @@ namespace SpotServiceQueryAPI.Controllers
             if (!HttpContext.Request.QueryString.HasValue)
                 return Ok(new SpotCharterView[] { }); //returns empty array
 
-            // handle query filters
-            if (queryString.ContainsKey("vsl"))
-                query = query.Where(s => string.Compare(s.VesselName, queryString["vsl"], true) == 0);
-
-            if (queryString.ContainsKey("cp"))
-                query = query.Where(s => string.Compare(s.CharterpartyName, queryString["cp"], true) == 0);
-
-            DateTime parsedDate = DateTime.MinValue;
-            if (queryString.ContainsKey("cpd_min") && DateTime.TryParse(queryString["cpd_min"], out parsedDate))
-                query = query.Where(s => s.CharterpartyDate >= parsedDate);
-
-            if (queryString.ContainsKey("cpd_max") && DateTime.TryParse(queryString["cpd_max"], out parsedDate))
-                query = query.Where(s => s.CharterpartyDate <= parsedDate);
-
-            if (queryString.ContainsKey("laycan") && DateTime.TryParse(queryString["laycan"], out parsedDate))
-                query = query.Where(s => s.Laycan.From <= parsedDate && s.Laycan.To >= parsedDate);
-
-            // handle sort options
-            if (queryString.ContainsKey("sort"))
+            try
             {
-                var sortOption = queryString["sort"];
-                if (queryString.ContainsKey("sortDirection") && string.Compare(queryString["sortDirection"], "desc", true) == 0)
-                    query = query.OrderByDescending((s) => typeof(SpotCharterView).GetRuntimeProperty(sortOption).GetValue(s, null));
-                else
-                    query = query.OrderBy(s => typeof(SpotCharterView).GetRuntimeProperty(sortOption).GetValue(s, null));
+                // handle query filters
+                if (queryString.ContainsKey("vsl"))
+                    query = query.Where(s => string.Compare(s.VesselName, queryString["vsl"], true) == 0);
+
+                if (queryString.ContainsKey("cp"))
+                    query = query.Where(s => string.Compare(s.CharterpartyName, queryString["cp"], true) == 0);
+
+                DateTime parsedDate = DateTime.MinValue;
+                if (queryString.ContainsKey("cpd_min") && DateTime.TryParse(queryString["cpd_min"], out parsedDate))
+                    query = query.Where(s => s.CharterpartyDate >= parsedDate);
+
+                if (queryString.ContainsKey("cpd_max") && DateTime.TryParse(queryString["cpd_max"], out parsedDate))
+                    query = query.Where(s => s.CharterpartyDate <= parsedDate);
+
+                if (queryString.ContainsKey("laycan") && DateTime.TryParse(queryString["laycan"], out parsedDate))
+                    query = query.Where(s => s.Laycan.From <= parsedDate && s.Laycan.To >= parsedDate);
+
+                // handle sort options
+                if (queryString.ContainsKey("sort"))
+                {
+                    var sortOption = queryString["sort"];
+                    var propInfo = typeof(SpotCharterView).GetRuntimeProperty(sortOption);
+
+                    if (propInfo == null)
+                        throw new ArgumentException($"Invalid sort field {sortOption}", "sort");
+
+                    if (queryString.ContainsKey("sortDirection") && string.Compare(queryString["sortDirection"], "desc", true) == 0)
+                        query = query.OrderByDescending((s) => propInfo.GetValue(s, null));
+                    else
+                        query = query.OrderBy(s => propInfo.GetValue(s, null));
+                }
+
+                int skip = 0, take = 10;
+                if (queryString.ContainsKey("skip"))
+                    int.TryParse(queryString["skip"], out skip);
+
+                if (queryString.ContainsKey("take"))
+                    int.TryParse(queryString["take"], out take);
+
+                return ReturnQueryResults(query, skip, take);
+
             }
-
-            int skip = 0, take = 10;
-            if (queryString.ContainsKey("skip"))
-                int.TryParse(queryString["skip"], out skip);
-
-            if (queryString.ContainsKey("take"))
-                int.TryParse(queryString["take"], out take);
-
-            return ReturnQueryResults(query, skip, take);
-
+            catch (Exception ex)
+            {
+                return this.BadRequest(ex);
+            }
         }
 
         [HttpGet("recentlyadded")]

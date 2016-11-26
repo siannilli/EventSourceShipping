@@ -31,7 +31,7 @@ namespace InMemoryRepositoryTests
 
         private SpotCharter GetNewSpotCharterInstance()
         {
-            var spot = new SpotCharterDomain.SpotCharter(new SpotCharterDomain.Commands.CreateSpotCharter() { CharterpartyDate = DateTime.Now, CharterpartyId = cpId1, CharterpartyName = counterparty1, VesselId = vesselId, VesselName = vesselName, MinimumQuantity = minimumQuantityStart, Login = login });
+            var spot = new SpotCharterDomain.SpotCharter(new SpotCharterDomain.Commands.CreateSpotCharter() { SpotCharterId = spotId, CharterpartyDate = DateTime.Now, CharterpartyId = cpId1, CharterpartyName = counterparty1, VesselId = vesselId, VesselName = vesselName, MinimumQuantity = minimumQuantityStart, Login = login });
 
             spot.ChangeLaycan(new SpotCharterDomain.Commands.ChangeLaycan() { Laycan = laycan, Login = login });
             spot.ChangeDemurrageRate(new SpotCharterDomain.Commands.ChangeDemurrageRate() { Login = login, DemurrageRate = demurrageRate });

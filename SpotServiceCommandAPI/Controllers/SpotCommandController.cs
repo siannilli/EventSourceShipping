@@ -6,16 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 
 using BaseDomainObjects;
 using SharedShippingDomainsObjects.ValueObjects;
-using SpotCharterDomain;
-using SpotCharterDomain;
 using SpotCharterDomain.Commands;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace SpotHandlerCommandAPI.Controllers
+namespace SpotServiceCommandAPI.Controllers
 {
-    [Route("api/[controller]")]
-    public class SpotController : Controller
+    [Route("api/command/spot", Name = "SpotCommand")]
+    public class SpotCommandController : Controller
     {
         private readonly ICommandHandler<CreateSpotCharter> createCharterHandler;
         private readonly ICommandHandler<ChangeCharterparty> changeCharterpartyHandler;
@@ -24,7 +22,7 @@ namespace SpotHandlerCommandAPI.Controllers
         private readonly ICommandHandler<ChangeBillOfLading> changeBLHandler;
         private readonly ICommandHandler<ChangeLaycan> changeLaycanHandler;
 
-        public SpotController(
+        public SpotCommandController(
             ICommandHandler<CreateSpotCharter> createCharterHandler,
             ICommandHandler<ChangeCharterparty> changeCharterpartyHandler,
             ICommandHandler<ChangeVessel> changeVesselHandler,
@@ -55,7 +53,7 @@ namespace SpotHandlerCommandAPI.Controllers
 
             var result = ProcessCommand(createCharterHandler, createCommand);
             if (result is OkResult)
-                return Created("/api/view", createCommand.SpotCharterId);
+                return Created($"{Environment.GetEnvironmentVariable("SPOTSERVICEQUERYAPI_URL") ?? "/api/spot"}/{createCommand.SpotCharterId.ToString()}",  new { spotId = createCommand.SpotCharterId });
 
             return result;
         }
@@ -85,7 +83,6 @@ namespace SpotHandlerCommandAPI.Controllers
 
             return this.ProcessCommand(changeVesselHandler, changeCommand);
         }
-
 
 
         // DELETE api/values/5

@@ -21,7 +21,8 @@
     "SharedShippingDomainObjects": "1.0.0-*",
     "BaseDomainObjects": "1.0.0-*",
     "AutoMapper": "5.1.1",
-    "SpotCharterViewModel": "1.0.0-*"
+    "SpotCharterViewModel": "1.0.0-*",
+    "InMemoryEventSourceSpotRepository": "1.0.0-*"
   },
 
   "tools": {

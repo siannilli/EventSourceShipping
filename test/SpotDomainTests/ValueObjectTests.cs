@@ -37,7 +37,44 @@ namespace SpotCharterDomainObjectTests
 
         }
 
-    
+        [Fact]
+        public void TestNotOperatorOverload()
+        {
+            SpotCharterId spotId1 = null;
+            SpotCharterId spotId2 = null;
+
+            Assert.True(spotId1 == spotId2);
+            Assert.False(spotId1 != spotId2);
+
+            Assert.Equal(spotId1, spotId2);
+
+            spotId1 = new SpotCharterId(Guid.NewGuid());
+            spotId2 = new SpotCharterId(Guid.NewGuid());
+
+            Assert.False(spotId1 == spotId2);
+            Assert.True(spotId1 != spotId2);
+
+            Assert.NotEqual(spotId1, spotId2);
+
+            spotId1 = new SpotCharterId(Guid.NewGuid());
+            spotId2 = null;
+
+            Assert.False(spotId1 == spotId2);
+            Assert.True(spotId1 != spotId2);
+
+            Assert.NotEqual(spotId1, spotId2);
+
+            spotId1 = new SpotCharterId(Guid.Empty);
+            spotId2 = new SpotCharterId(Guid.Empty);
+
+            Assert.True(spotId1 == spotId2);
+            Assert.False(spotId1 != spotId2);
+
+            Assert.Equal(spotId1, spotId2);
+
+
+        }
+
 
     }
 }

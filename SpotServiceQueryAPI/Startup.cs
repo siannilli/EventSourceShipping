@@ -18,6 +18,8 @@ namespace SpotServiceQueryAPI
 {
     public class Startup
     {
+        ISpotCharterQueryRepository queryRepository;
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -34,6 +36,11 @@ namespace SpotServiceQueryAPI
             builder.AddEnvironmentVariables();
             Configuration = builder.Build();
 
+            queryRepository = new SpotCharterQueryRepository(
+                host: Configuration.GetSection("DocumentStore")["host"],
+                database: Configuration.GetSection("DocumentStore")["database"],
+                username: Configuration.GetSection("DocumentStore")["login"],
+                password: Configuration.GetSection("DocumentStore")["password"]);
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -45,13 +52,7 @@ namespace SpotServiceQueryAPI
             services.AddApplicationInsightsTelemetry(Configuration);
 
             // Add singleton repository instance for document database with view model instances
-            services.AddSingleton<ISpotCharterQueryRepository, SpotCharterQueryRepository>((provider) =>
-                new SpotCharterQueryRepository(
-                    host: Configuration.GetSection("DocumentStore")["host"], 
-                    database: Configuration.GetSection("DocumentStore")["database"], 
-                    username: Configuration.GetSection("DocumentStore")["login"], 
-                    password: Configuration.GetSection("DocumentStore")["password"])            
-            );
+            services.AddSingleton<ISpotCharterQueryRepository>((provider) => queryRepository);
            
             services.AddMvc();
         }

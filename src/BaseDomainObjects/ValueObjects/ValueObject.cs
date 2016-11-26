@@ -62,11 +62,13 @@ namespace BaseDomainObjects.ValueObjects
        
         public static bool operator ==(ValueObject<T> operand1, ValueObject<T> operand2)
         {
-            //TODO: when both are null, the check raises a StackOverflowException
-            if (null == operand1 && null == operand2 )
+            if (System.Object.ReferenceEquals(operand1, operand2))
+                return true;
+            
+            if (null == (object)operand1 && null == (object)operand2 )
                 return true;
 
-            if (null == operand1)
+            if (null == (object)operand1)
                 return false;
 
             return operand1.Equals(operand2);
@@ -74,13 +76,7 @@ namespace BaseDomainObjects.ValueObjects
 
         public static bool operator !=(ValueObject<T> operand1, ValueObject<T> operand2)
         {
-            if (operand1 == null && operand2 == null)
-                return true;
-
-            if (operand1 == null)
-                return false;
-
-            return !operand1.Equals(2);
+            return !(operand1 == operand2);
         }
     }
 }

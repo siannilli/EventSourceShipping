@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 using SpotCharterDomain;
 using BaseDomainObjects;
@@ -99,6 +100,7 @@ namespace SpotServiceCommandAPI
             // services.AddSingleton<ICommandHandler<SpotCharterServices.Commands.ChangeFreightRate>>(spotService);
 
             services.AddMvc();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -109,6 +111,10 @@ namespace SpotServiceCommandAPI
 
             app.UseApplicationInsightsRequestTelemetry();
             app.UseApplicationInsightsExceptionTelemetry();
+
+            app.UseJwtBearerAuthentication(new JwtBearerOptions() {
+                 
+            });
 
             app.UseMvc();
         }

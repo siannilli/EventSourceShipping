@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 using BaseDomainObjects;
 using SharedShippingDomainsObjects.ValueObjects;
@@ -12,7 +13,7 @@ using SpotCharterDomain.Commands;
 
 namespace SpotServiceCommandAPI.Controllers
 {
-    [Route("api/spot")]
+    [Route("api/spot"), Authorize(Roles = "charterer")]
     public class SpotCommandController : Controller
     {
         private readonly ICommandHandler<CreateSpotCharter> createCharterHandler;
@@ -100,7 +101,7 @@ namespace SpotServiceCommandAPI.Controllers
                 if (!Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT").Equals("Development") && !this.HttpContext.User.Identity.IsAuthenticated)
                     return Unauthorized();
                 
-                command.Login = new BaseDomainObjects.Entities.Login(this.HttpContext.User.Identity.Name ?? "devlogin");
+                command.Login = new BaseDomainObjects.Entities.Login(this.HttpContext.User.Identity.Name ?? "noname");
                 commandHandler.Handle(command);
                 return Ok();
 

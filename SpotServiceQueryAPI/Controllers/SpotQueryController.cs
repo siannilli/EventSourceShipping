@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using SpotCharterViewModel;
 using SharedShippingDomainsObjects.ValueObjects;
 using System.Reflection;
-
+using Microsoft.AspNetCore.Authorization;
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace SpotServiceQueryAPI.Controllers
 {
-    [Route("api/spot")]
+    [Route("api/spot"), Authorize]
     public class SpotQueryController : Controller
     {
         private readonly ISpotCharterQueryRepository repository;

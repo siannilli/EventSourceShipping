@@ -17,6 +17,10 @@ using EventDispatcherBase;
 using RabbitMQEventDispatcher;
 using SpotCharterDomain.Commands;
 using SpotCharterViewModel;
+using Microsoft.IdentityModel.Tokens;
+
+using System.Security.Principal;
+using System.Security.Claims;
 
 namespace SpotServiceCommandAPI
 {
@@ -24,6 +28,7 @@ namespace SpotServiceCommandAPI
     {
         IEventDispatcher messageDispatcher = null;
         ISpotCharterCommandRepository commandRepository = null;
+        private SecurityKey jwtSigningKey;
 
         public Startup(IHostingEnvironment env)
         {
@@ -112,9 +117,36 @@ namespace SpotServiceCommandAPI
             app.UseApplicationInsightsRequestTelemetry();
             app.UseApplicationInsightsExceptionTelemetry();
 
+
             app.UseJwtBearerAuthentication(new JwtBearerOptions() {
-                 
+                AutomaticAuthenticate = true,
+                AutomaticChallenge = true,
+                TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = jwtSigningKey,
+
+                    ValidateIssuer = true,
+                    ValidIssuer = "user-management",
+
+                    ValidateLifetime = true, 
+
+                    }
             });
+
+            if (env.IsDevelopment()) // fixed authentication
+            {
+                // add a middleware that setup a generic authentication claim
+                app.Use(async (context, next) =>
+                {                
+                    var identity = new GenericIdentity("devuser", ClaimsIdentity.DefaultIssuer);                    
+                    var principal = new GenericPrincipal(identity, new string[] { "charterer" });
+
+                    context.User = new ClaimsPrincipal(principal);
+                                        
+                    await next.Invoke();
+                });
+            }
 
             app.UseMvc();
         }
